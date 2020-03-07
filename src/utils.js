@@ -16,6 +16,14 @@ export const shuffleDeck = () =>
     6,
   )
 
+export const isDescending = numbers => {
+  return (
+    numbers.filter((number, index) => {
+      return numbers[index + 1] ? number === numbers[index + 1] + 1 : true
+    }).length === numbers.length
+  )
+}
+
 export const moveCard = (piles, movedCard, destinationCard) => {
   const destinationPileIndex = piles.findIndex(pile =>
     pile.find(c => c.index === destinationCard.index),
@@ -30,22 +38,20 @@ export const moveCard = (piles, movedCard, destinationCard) => {
       card => card.index === movedCard.index,
     )
     const numToMove = sourcePile.length - indexInPile
-    // remove the active movedCard from its pile
-    if (targetPileIndex === cardPileIndex) {
-      return targetPile.slice(0, targetPile.length - numToMove)
-    }
 
-    // add the active movedCard to the target pile
-    if (targetPileIndex === destinationPileIndex) {
-      const movingCards = sourcePile.slice(indexInPile, indexInPile + numToMove)
-      console.log({
-        sourcePile,
-        targetPile,
-        indexInPile,
-        numToMove,
-        movingCards,
-      })
-      return [...targetPile, ...movingCards]
+    const movingCards = sourcePile.slice(indexInPile, indexInPile + numToMove)
+    if (
+      isDescending([destinationCard.value, ...movingCards.map(m => m.value)])
+    ) {
+      // remove the active movedCard from its pile
+      if (targetPileIndex === cardPileIndex) {
+        return targetPile.slice(0, targetPile.length - numToMove)
+      }
+
+      // add the active movedCard to the target pile
+      if (targetPileIndex === destinationPileIndex) {
+        return [...targetPile, ...movingCards]
+      }
     }
 
     return targetPile

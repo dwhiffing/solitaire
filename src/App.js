@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { shuffleDeck, moveCard } from './utils'
+import { shuffleDeck, moveCard, isDescending } from './utils'
 import { Card } from './Card'
 
 function App() {
@@ -13,6 +13,10 @@ function App() {
   }
 
   const onClickCard = clickedCard => {
+    if (!clickedCard.isValid) {
+      return
+    }
+
     if (!activeCard) {
       return setActiveCard(clickedCard)
     }
@@ -32,10 +36,13 @@ function App() {
           key={`pile-${pileIndex}`}
           style={{ display: 'flex', margin: 5, flexDirection: 'column' }}
         >
-          {pile.map(card => (
+          {pile.map((card, cardPileIndex) => (
             <Card
               key={`card-${card.index}`}
               isActive={activeCard && activeCard.index === card.index}
+              isValid={isDescending([
+                ...pile.map(c => c.value).slice(cardPileIndex, pile.length),
+              ])}
               onClick={onClickCard}
               onDrag={onDragCard}
               value={card.value}
