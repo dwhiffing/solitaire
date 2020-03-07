@@ -16,19 +16,38 @@ export const shuffleDeck = () =>
     6,
   )
 
-export const moveCard = (piles, movedCard, destinationPileIndex) =>
-  piles.map((pile, pileIndex) => {
+export const moveCard = (piles, movedCard, destinationCard) => {
+  const destinationPileIndex = piles.findIndex(pile =>
+    pile.find(c => c.index === destinationCard.index),
+  )
+
+  return piles.map((targetPile, targetPileIndex) => {
     const cardPileIndex = piles.findIndex(pile =>
       pile.find(c => c.index === movedCard.index),
-    ) // remove the active movedCard from its pile
-
-    if (pileIndex === cardPileIndex) {
-      return pile.slice(0, pile.length - 1)
-    } // add the active movedCard to the target pile
-
-    if (pileIndex === destinationPileIndex) {
-      return [...pile, movedCard]
+    )
+    const sourcePile = piles[cardPileIndex]
+    const indexInPile = sourcePile.findIndex(
+      card => card.index === movedCard.index,
+    )
+    const numToMove = sourcePile.length - indexInPile
+    // remove the active movedCard from its pile
+    if (targetPileIndex === cardPileIndex) {
+      return targetPile.slice(0, targetPile.length - numToMove)
     }
 
-    return pile
+    // add the active movedCard to the target pile
+    if (targetPileIndex === destinationPileIndex) {
+      const movingCards = sourcePile.slice(indexInPile, indexInPile + numToMove)
+      console.log({
+        sourcePile,
+        targetPile,
+        indexInPile,
+        numToMove,
+        movingCards,
+      })
+      return [...targetPile, ...movingCards]
+    }
+
+    return targetPile
   })
+}

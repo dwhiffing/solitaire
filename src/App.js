@@ -6,6 +6,12 @@ function App() {
   const [activeCard, setActiveCard] = useState(null)
   const [piles, setPiles] = useState(shuffleDeck())
 
+  const onDragCard = (sourceCard, destinationCard) => {
+    if (sourceCard && destinationCard) {
+      setPiles(moveCard(piles, sourceCard, destinationCard))
+    }
+  }
+
   const onClickCard = clickedCard => {
     if (!activeCard) {
       return setActiveCard(clickedCard)
@@ -15,11 +21,7 @@ function App() {
       return setActiveCard(null)
     }
 
-    const clickedCardPileIndex = piles.findIndex(pile =>
-      pile.find(c => c.index === clickedCard.index),
-    )
-
-    setPiles(moveCard(piles, activeCard, clickedCardPileIndex))
+    setPiles(moveCard(piles, activeCard, clickedCard))
     setActiveCard(null)
   }
 
@@ -35,6 +37,7 @@ function App() {
               key={`card-${card.index}`}
               isActive={activeCard && activeCard.index === card.index}
               onClick={onClickCard}
+              onDrag={onDragCard}
               value={card.value}
               index={card.index}
             />
