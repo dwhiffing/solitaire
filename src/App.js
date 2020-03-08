@@ -109,6 +109,7 @@ function App() {
             pileIndex,
             cardPileIndex,
           }}
+          activeCard={activeCard}
           cursorState={cursorState}
           onMouseUp={onCardRelease}
           onMouseDown={onMouseDown}

@@ -1,18 +1,28 @@
 import React from 'react'
 import { Motion, spring } from 'react-motion'
 
-export const Card = ({ card, onMouseDown, onMouseUp, cursorState }) => {
+export const Card = ({
+  card,
+  activeCard,
+  onMouseDown,
+  onMouseUp,
+  cursorState,
+}) => {
   const shouldFollowCursor =
-    cursorState.isPressed &&
-    cursorState.pressedIndex === card.deckIndex &&
-    card.canMove &&
-    card.isActive
+    cursorState.isPressed && card.isActive && card.canMove
 
   const height = window.innerHeight / 15
   const width = window.innerWidth / 7
-
   const style = shouldFollowCursor
-    ? { y: cursorState.mouseY, x: cursorState.mouseX, z: 99 }
+    ? {
+        y:
+          cursorState.mouseY +
+          (activeCard
+            ? height * Math.abs(activeCard.cardPileIndex - card.cardPileIndex)
+            : -30),
+        x: cursorState.mouseX,
+        z: 99,
+      }
     : {
         y: spring(height + card.cardPileIndex * height),
         x: spring(width / 1.8 + card.pileIndex * width),
