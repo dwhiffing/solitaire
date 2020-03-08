@@ -1,20 +1,14 @@
 import React from 'react'
 import { Motion, spring } from 'react-motion'
 
-export const Card = ({
-  card,
-  onMouseDown,
-  onMouseUp,
-  onTouchStart,
-  cursorState,
-}) => {
+export const Card = ({ card, onMouseDown, onMouseUp, cursorState }) => {
   const shouldFollowCursor =
     cursorState.isPressed &&
     cursorState.pressedIndex === card.deckIndex &&
     card.canMove &&
     card.isActive
 
-  const height = window.innerHeight / 12
+  const height = window.innerHeight / 15
   const width = window.innerWidth / 7
 
   const style = shouldFollowCursor
@@ -24,21 +18,21 @@ export const Card = ({
         x: spring(width / 1.8 + card.pileIndex * width),
         z: 1,
       }
-
   return (
     <Motion key={card.index} style={style}>
       {({ x, y, z }) => (
         <div
-          onMouseDown={onMouseDown.bind(null, card, x, y)}
-          onMouseUp={onMouseUp.bind(null, card, x, y)}
-          onTouchStart={onTouchStart.bind(null, card, x, y)}
+          onPointerDown={onMouseDown.bind(null, card, x, y)}
+          onPointerUp={onMouseUp.bind(null, card, x, y)}
+          data-index={card.deckIndex}
           className={`card spades rank${card.value} ${
             card.isCheat ? 'is-cheat' : ''
-          } ${card.isActive ? 'is-active' : ''} ${card.isEmpty ? 'empty' : ''}`}
+          } ${card.isActive ? 'is-active' : ''} ${
+            card.isEmpty ? 'empty' : ''
+          } ${shouldFollowCursor ? 'disable-touch' : ''}`}
           style={{
             transform: `translate3d(${x}px, ${y}px, 0)`,
             zIndex: z,
-            pointerEvents: shouldFollowCursor ? 'none' : 'all',
           }}
         >
           <div className="face" />

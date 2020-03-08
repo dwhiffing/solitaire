@@ -31,6 +31,7 @@ body {
   display: flex;
   flex: 1;
   margin-top: 20px;
+  touch-action: none;
 }
 
 .card {
@@ -88,6 +89,10 @@ body {
   height: 100%;
   top: 0;
   left: 0;
+}
+.disable-touch {
+  pointer-events: none;
+  touch-action: none;
 }
 .card.spades,
 .card.clubs,

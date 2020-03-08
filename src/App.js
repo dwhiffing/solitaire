@@ -73,25 +73,20 @@ function App() {
     })
   }
 
-  const onTouchStart = (card, x, y, e) => {
-    onMouseDown(card, x, y, e.touches[0])
-  }
-
-  const onTouchMove = e => {
-    e.preventDefault()
-    onMouseMove(e.touches[0])
-  }
-
   const onCardRelease = (clickedCard, x, y, e) => {
+    const elementUnder = document.elementFromPoint(e.clientX, e.clientY)
+    if (elementUnder && elementUnder.parentElement) {
+      const eventCardIndex = +elementUnder.parentElement.dataset.index
+      clickedCard = deck[eventCardIndex]
+    }
+
     if (activeCard && clickedCard) {
       setPiles(moveCard(piles, activeCard, clickedCard))
     }
   }
 
-  useWindowEvent('mouseup', onMouseUp)
-  useWindowEvent('touchmove', onTouchMove)
-  useWindowEvent('touchend', onMouseUp)
-  useWindowEvent('mousemove', onMouseMove)
+  useWindowEvent('pointerup', onMouseUp)
+  useWindowEvent('pointermove', onMouseMove)
 
   return piles.map((pile, pileIndex) =>
     pile.length === 0 ? (
@@ -100,7 +95,6 @@ function App() {
         card={{ cardPileIndex: 0, pileIndex, isEmpty: true, canMove: true }}
         onMouseUp={onCardRelease}
         cursorState={cursorState}
-        onTouchStart={onTouchStart}
         onMouseDown={onMouseDown}
       />
     ) : (
@@ -118,7 +112,6 @@ function App() {
           cursorState={cursorState}
           onMouseUp={onCardRelease}
           onMouseDown={onMouseDown}
-          onTouchStart={onTouchStart}
         />
       ))
     ),
