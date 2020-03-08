@@ -36,19 +36,39 @@ function App() {
           key={`pile-${pileIndex}`}
           style={{ display: 'flex', margin: 5, flexDirection: 'column' }}
         >
-          {pile.map((card, cardPileIndex) => (
-            <Card
-              key={`card-${card.index}`}
-              isActive={activeCard && activeCard.index === card.index}
-              isValid={isDescending([
-                ...pile.map(c => c.value).slice(cardPileIndex, pile.length),
-              ])}
-              onClick={onClickCard}
-              onDrag={onDragCard}
-              value={card.value}
-              index={card.index}
-            />
-          ))}
+          {pile.map((card, cardPileIndex) => {
+            let isActive = false
+            if (activeCard) {
+              isActive = activeCard.index === card.index
+              const activePile =
+                activeCard &&
+                piles.find(pile => pile.find(c => c.index === activeCard.index))
+
+              if (activePile) {
+                const activeIndexInPile = activePile.findIndex(
+                  c => c.index === activeCard.index,
+                )
+                const indexInPile = activePile.findIndex(
+                  c => c.index === card.index,
+                )
+                isActive = activeIndexInPile <= indexInPile
+              }
+            }
+
+            return (
+              <Card
+                key={`card-${card.index}`}
+                isActive={isActive}
+                isValid={isDescending([
+                  ...pile.map(c => c.value).slice(cardPileIndex, pile.length),
+                ])}
+                onClick={onClickCard}
+                onDrag={onDragCard}
+                value={card.value}
+                index={card.index}
+              />
+            )
+          })}
         </div>
       ))}
     </div>
