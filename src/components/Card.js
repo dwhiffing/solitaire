@@ -1,43 +1,66 @@
 import React from 'react'
-import { useDrag, useDrop } from 'react-dnd'
+import { Motion, spring } from 'react-motion'
 
 export const Card = ({
   isActive,
   isCheat,
-  canMove,
   value,
   index,
-  onDrag,
-  onClick,
+  deckIndex,
+  cardPileIndex,
+  pileIndex,
+  onMouseDown,
+  onMouseUp,
+  isEmpty,
+  canMove,
+  onTouchStart,
+  cursorState,
 }) => {
-  const [, dragRef] = useDrag({
-    item: { id: index, type: 'card' },
-    end: (item, monitor) => {
-      if (monitor.didDrop()) {
-        const targetCard = monitor.getDropResult()
-        onDrag({ value, index, isCheat }, targetCard)
+  const height = window.innerHeight / 12
+  const width = window.innerWidth / 7
+  const shouldFollowCursor =
+    cursorState.isPressed &&
+    cursorState.pressedIndex === deckIndex &&
+    canMove &&
+    isActive
+  const style = shouldFollowCursor
+    ? { y: cursorState.mouseY, x: cursorState.mouseX, z: 99 }
+    : {
+        y: spring(height + cardPileIndex * height),
+        x: spring(width / 1.8 + pileIndex * width),
+        z: 1,
       }
-    },
-  })
-  const [, dropRef] = useDrop({
-    accept: 'card',
-    drop: () => ({ index, value, isCheat }),
-  })
+
+  const card = isEmpty
+    ? { pileIndex, canMove: true, isEmpty: true }
+    : {
+        value,
+        index,
+        deckIndex,
+        isActive,
+        canMove,
+        isCheat,
+      }
+
   return (
-    <div className="card-container" ref={dragRef}>
-      <div
-        className={`card spades rank${value} ${isCheat ? 'is-cheat' : ''} ${
-          isActive ? 'is-active' : ''
-        }`}
-        onClick={() => onClick({ value, index, isCheat, canMove })}
-        style={{ position: 'relative' }}
-      >
-        <div className="face" />
+    <Motion key={index} style={style}>
+      {({ x, y, z }) => (
         <div
-          ref={dropRef}
-          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-        />
-      </div>
-    </div>
+          onMouseDown={onMouseDown.bind(null, card, x, y)}
+          onMouseUp={onMouseUp.bind(null, card, x, y)}
+          onTouchStart={onTouchStart.bind(null, card, x, y)}
+          className={`card spades rank${value} ${isCheat ? 'is-cheat' : ''} ${
+            isActive ? 'is-active' : ''
+          } ${isEmpty ? 'empty' : ''}`}
+          style={{
+            transform: `translate3d(${x}px, ${y}px, 0)`,
+            zIndex: z,
+            pointerEvents: shouldFollowCursor ? 'none' : 'all',
+          }}
+        >
+          <div className="face" />
+        </div>
+      )}
+    </Motion>
   )
 }

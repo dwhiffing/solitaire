@@ -1,0 +1,3 @@
+use glow/scale effect to show selected card
+use 90 degree rotation to show cheat
+should rotate while dragging above potential drop points
