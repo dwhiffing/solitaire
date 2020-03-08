@@ -51,6 +51,10 @@ export const moveCard = (piles, movedCard, destinationCard) => {
       (!destinationCard.isCheat &&
         isDescending([destinationCard.value, ...movingCards.map(m => m.value)]))
 
+    if (cardPileIndex === destinationPileIndex) {
+      return targetPile
+    }
+
     if (validOrder || allowCheat) {
       // remove the active movedCard from its pile
       if (targetPileIndex === cardPileIndex) {
@@ -58,7 +62,6 @@ export const moveCard = (piles, movedCard, destinationCard) => {
       }
 
       // add the active movedCard to the target pile
-      console.log(targetPileIndex, destinationCard, destinationPileIndex)
       if (targetPileIndex === destinationPileIndex) {
         return [...targetPile, ...movingCards.map(c => ({ ...c, isCheat }))]
       }
