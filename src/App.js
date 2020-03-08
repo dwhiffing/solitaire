@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { shuffleDeck, moveCard, isDescending } from './utils'
-import { Card } from './Card'
-import { Empty } from './Empty'
+import { Card } from './components/Card'
+import { Empty } from './components/Empty'
 import './index.css'
 
 function App() {
@@ -19,15 +19,12 @@ function App() {
   }
 
   const onClickCard = clickedCard => {
-    if (!clickedCard.canMove) {
+    if (!clickedCard.canMove || (activeCard && clickedCard.isEmpty)) {
       return
     }
 
     if (!activeCard) {
-      if (!clickedCard.isEmpty) {
-        setActiveCard(clickedCard)
-      }
-      return
+      return setActiveCard(clickedCard)
     }
 
     if (clickedCard.index === activeCard.index) {
@@ -49,44 +46,20 @@ function App() {
             {pile.length === 0 ? (
               <Empty index={pileIndex} onClick={onClickCard} />
             ) : (
-              pile.map((card, cardPileIndex) => {
-                let isActive = false
-                if (activeCard) {
-                  isActive = activeCard.index === card.index
-                  const activePile =
-                    activeCard &&
-                    piles.find(pile =>
-                      pile.find(c => c.index === activeCard.index),
-                    )
-
-                  if (activePile) {
-                    const activeIndexInPile = activePile.findIndex(
-                      c => c.index === activeCard.index,
-                    )
-                    const indexInPile = activePile.findIndex(
-                      c => c.index === card.index,
-                    )
-                    isActive = activeIndexInPile <= indexInPile
-                  }
-                }
-
-                return (
-                  <Card
-                    key={`card-${card.index}`}
-                    isActive={isActive}
-                    canMove={isDescending([
-                      ...pile
-                        .map(c => c.value)
-                        .slice(cardPileIndex, pile.length),
-                    ])}
-                    onClick={onClickCard}
-                    onDrag={onDragCard}
-                    value={card.value}
-                    index={card.index}
-                    isCheat={card.isCheat}
-                  />
-                )
-              })
+              pile.map((card, cardPileIndex) => (
+                <Card
+                  key={`card-${card.index}`}
+                  isActive={getCardIsActive(activeCard, card, piles)}
+                  canMove={isDescending([
+                    ...pile.map(c => c.value).slice(cardPileIndex, pile.length),
+                  ])}
+                  onClick={onClickCard}
+                  onDrag={onDragCard}
+                  value={card.value}
+                  index={card.index}
+                  isCheat={card.isCheat}
+                />
+              ))
             )}
           </div>
         )
@@ -96,3 +69,16 @@ function App() {
 }
 
 export default App
+
+function getCardIsActive(activeCard, card, piles) {
+  let isActive = false
+  if (activeCard) {
+    const { index } = activeCard
+    isActive = index === card.index
+    const activePile = piles.find(pile => pile.find(c => c.index === index))
+    const activeIndexInPile = activePile.findIndex(c => c.index === index)
+    const indexInPile = activePile.findIndex(c => c.index === card.index)
+    isActive = activeIndexInPile <= indexInPile
+  }
+  return isActive
+}
