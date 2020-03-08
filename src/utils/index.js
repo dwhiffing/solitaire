@@ -1,5 +1,6 @@
 import shuffle from 'lodash/shuffle'
 import chunk from 'lodash/chunk'
+import { useEffect } from 'react'
 
 const CARDS = '987654321'
   .split('')
@@ -69,4 +70,37 @@ export const moveCard = (piles, movedCard, destinationCard) => {
 
     return targetPile
   })
+}
+
+export function getCardIsActive(activeCard, card, piles) {
+  let isActive = false
+
+  if (activeCard) {
+    const { index } = activeCard
+    isActive = index === card.index
+    const activePile = piles.find(pile => pile.find(c => c.index === index))
+    const activeIndexInPile = activePile.findIndex(c => c.index === index)
+    const indexInPile = activePile.findIndex(c => c.index === card.index)
+    isActive = activeIndexInPile <= indexInPile
+  }
+
+  return isActive
+}
+
+export const getCanCardMove = (card, piles) => {
+  const pileIndex = piles.findIndex(pile =>
+    pile.find(c => c.index === card.index),
+  )
+  const pile = piles[pileIndex]
+  const cardPileIndex = pile.findIndex(c => c.index === card.index)
+  return isDescending([
+    ...pile.map(c => c.value).slice(cardPileIndex, pile.length),
+  ])
+}
+
+export const useWindowEvent = (event, callback) => {
+  useEffect(() => {
+    window.addEventListener(event, callback)
+    return () => window.removeEventListener(event, callback)
+  }, [event, callback])
 }
