@@ -1,19 +1,27 @@
 import React from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 
-export const Card = ({ isActive, isValid, value, index, onDrag, onClick }) => {
+export const Card = ({
+  isActive,
+  isCheat,
+  isValid,
+  value,
+  index,
+  onDrag,
+  onClick,
+}) => {
   const [, dragRef] = useDrag({
     item: { id: index, type: 'card' },
     end: (item, monitor) => {
       if (monitor.didDrop()) {
         const targetCard = monitor.getDropResult()
-        onDrag({ value, index }, targetCard)
+        onDrag({ value, index, isCheat }, targetCard)
       }
     },
   })
   const [, dropRef] = useDrop({
     accept: 'card',
-    drop: () => ({ index, value }),
+    drop: () => ({ index, value, isCheat }),
   })
   return (
     <div ref={dragRef} style={{ height: 25 }}>
@@ -27,7 +35,7 @@ export const Card = ({ isActive, isValid, value, index, onDrag, onClick }) => {
           borderRadius: 8,
           userSelect: 'none',
           position: 'relative',
-          backgroundColor: isActive ? 'tomato' : 'white',
+          backgroundColor: isCheat ? 'tomato' : isActive ? 'khaki' : 'white',
         }}
       >
         <div

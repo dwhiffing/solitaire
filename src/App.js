@@ -66,6 +66,7 @@ function App() {
                 onDrag={onDragCard}
                 value={card.value}
                 index={card.index}
+                isCheat={card.isCheat}
               />
             )
           })}

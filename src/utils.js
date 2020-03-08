@@ -39,10 +39,16 @@ export const moveCard = (piles, movedCard, destinationCard) => {
     )
     const numToMove = sourcePile.length - indexInPile
 
+    const allowCheat =
+      numToMove === 1 && !movedCard.isCheat && !destinationCard.isCheat
+    const isCheat = movedCard.value !== destinationCard.value - 1
     const movingCards = sourcePile.slice(indexInPile, indexInPile + numToMove)
-    if (
-      isDescending([destinationCard.value, ...movingCards.map(m => m.value)])
-    ) {
+    const validOrder = isDescending([
+      destinationCard.value,
+      ...movingCards.map(m => m.value),
+    ])
+    console.log({ isCheat, validOrder, movedCard, destinationCard })
+    if (validOrder || allowCheat) {
       // remove the active movedCard from its pile
       if (targetPileIndex === cardPileIndex) {
         return targetPile.slice(0, targetPile.length - numToMove)
@@ -50,7 +56,7 @@ export const moveCard = (piles, movedCard, destinationCard) => {
 
       // add the active movedCard to the target pile
       if (targetPileIndex === destinationPileIndex) {
-        return [...targetPile, ...movingCards]
+        return [...targetPile, ...movingCards.map(c => ({ ...c, isCheat }))]
       }
     }
 
