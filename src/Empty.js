@@ -9,24 +9,13 @@ export const Empty = ({ index, onClick }) => {
   return (
     <div style={{ height: 25 }}>
       <div
+        ref={dropRef}
+        className="card empty"
         onClick={() =>
           onClick({ pileIndex: index, canMove: true, isEmpty: true })
         }
-        style={{
-          cursor: 'pointer',
-          border: '1px solid black',
-          height: 80,
-          width: 50,
-          borderRadius: 8,
-          userSelect: 'none',
-          position: 'relative',
-          backgroundColor: 'gray',
-        }}
       >
-        <div
-          ref={dropRef}
-          style={{ position: 'absolute', top: 5, left: 5, right: 5, bottom: 5 }}
-        />
+        {/* <div className="back" /> */}
       </div>
     </div>
   )

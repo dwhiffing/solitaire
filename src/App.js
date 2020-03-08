@@ -39,7 +39,7 @@ function App() {
   }
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div style={{ margin: '0 auto', display: 'flex' }}>
       {piles.map((pile, pileIndex) => {
         return (
           <div
