@@ -57,7 +57,7 @@ body {
   transform: rotate(180deg);
 }
 .card.is-active {
-  background-color: khaki;
+  background-color: khaki !important;
 }
 .card.is-cheat {
   background-color: tomato;
