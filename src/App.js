@@ -61,7 +61,8 @@ function App() {
     if (
       activeCard &&
       typeof cursorState.pressedIndex === 'number' &&
-      diffX < 10 && diffY < 10
+      diffX < 10 &&
+      diffY < 10
     ) {
     } else {
       setActiveCard(null)
@@ -79,7 +80,11 @@ function App() {
     const diffX = Math.abs(cursorState.startX - e.pageX)
     const diffY = Math.abs(cursorState.startY - e.pageY)
 
-    if (activeCard && cursorState.pressedIndex && (diffX > 10 || diffY > 10)) {
+    if (
+      activeCard &&
+      typeof cursorState.pressedIndex === 'number' &&
+      (diffX > 10 || diffY > 10)
+    ) {
       const clickedCard = getCardFromPoint(e.clientX, e.clientY, cards)
 
       if (activeCard && clickedCard) {
@@ -140,7 +145,7 @@ const getCardFromPoint = (x, y, cards) => {
       card = cards[+dataIndex]
     } else {
       let emptyCard = {
-        cardPileIndex: 0,
+        cardPileIndex: -1,
         pileIndex: +elementUnder.parentElement.dataset.pileindex,
         isEmpty: true,
         canMove: true,
