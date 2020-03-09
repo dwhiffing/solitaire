@@ -68,8 +68,6 @@ export const moveCard = (cards, movedCard, destinationCard) => {
         movingCards.findIndex(c => c.index === card.index) +
         1
 
-      console.log(movingCards)
-
       return {
         ...card,
         pileIndex: destinationCard.pileIndex,

@@ -79,10 +79,19 @@ function App() {
     if (activeCard && cursorState.pressedIndex && (diffX > 10 || diffY > 10)) {
       const elementUnder = document.elementFromPoint(e.clientX, e.clientY)
       if (elementUnder && elementUnder.parentElement) {
-        const eventCardIndex = +elementUnder.parentElement.dataset.index
-        clickedCard = cards[eventCardIndex]
+        const dataIndex = elementUnder.parentElement.dataset.index
+        if (dataIndex) {
+          clickedCard = cards[+dataIndex]
+        } else {
+          clickedCard = {
+            cardPileIndex: -1,
+            pileIndex: +elementUnder.parentElement.dataset.pileindex,
+            isEmpty: true,
+            canMove: true,
+          }
+        }
       }
-      if (clickedCard) {
+      if (clickedCard && !clickedCard.isEmpty) {
         const pile = getCardPile(clickedCard, cards)
         clickedCard = pile[pile.length - 1]
       }

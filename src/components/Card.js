@@ -34,6 +34,7 @@ export const Card = ({
           onPointerDown={onMouseDown.bind(null, card, x, y)}
           onPointerUp={onMouseUp.bind(null, card, x, y)}
           data-index={card.index}
+          data-pileindex={card.pileIndex}
           className={`card ${SUITS[card.suit]} rank${card.value} ${
             shouldFollowCursor ? 'disable-touch' : ''
           }`}
