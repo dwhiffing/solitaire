@@ -5,6 +5,7 @@ import {
   moveCard,
   getCanCardMove,
   getCardIsActive,
+  getCardPile,
 } from './utils'
 import { Card } from './components/Card'
 import './index.css'
@@ -14,14 +15,12 @@ const initialState = { startX: 0, startY: 0, mouseY: 0, mouseX: 0 }
 function App() {
   const [activeCard, setActiveCard] = useState(null)
   const [cursorState, setCursorState] = useState(initialState)
-  const [piles, setPiles] = useState([...shuffleDeck()])
-
-  const deck = piles.flat()
+  const [cards, setCards] = useState([...shuffleDeck()])
 
   const onMouseDown = (card, mouseX, mouseY, e) => {
     const { pageX: startX, pageY: startY } = e
     if (activeCard) {
-      setPiles(moveCard(piles, activeCard, card))
+      setCards(moveCard(cards, activeCard, card))
       setActiveCard(null)
     } else if (
       card.isActive ||
@@ -41,7 +40,7 @@ function App() {
       startX,
       startY,
       isPressed: true,
-      pressedIndex: card.deckIndex,
+      pressedIndex: card.index,
     })
   }
 
@@ -74,49 +73,64 @@ function App() {
   }
 
   const onCardRelease = (clickedCard, x, y, e) => {
-    const elementUnder = document.elementFromPoint(e.clientX, e.clientY)
-    if (elementUnder && elementUnder.parentElement) {
-      const eventCardIndex = +elementUnder.parentElement.dataset.index
-      clickedCard = deck[eventCardIndex]
-    }
+    const diffX = Math.abs(cursorState.startX - e.pageX)
+    const diffY = Math.abs(cursorState.startY - e.pageY)
 
-    if (activeCard && clickedCard) {
-      setPiles(moveCard(piles, activeCard, clickedCard))
+    if (activeCard && cursorState.pressedIndex && (diffX > 10 || diffY > 10)) {
+      const elementUnder = document.elementFromPoint(e.clientX, e.clientY)
+      if (elementUnder && elementUnder.parentElement) {
+        const eventCardIndex = +elementUnder.parentElement.dataset.index
+        clickedCard = cards[eventCardIndex]
+      }
+      if (clickedCard) {
+        const pile = getCardPile(clickedCard, cards)
+        clickedCard = pile[pile.length - 1]
+      }
+
+      if (activeCard && clickedCard) {
+        setCards(moveCard(cards, activeCard, clickedCard))
+      }
     }
   }
 
   useWindowEvent('pointerup', onMouseUp)
   useWindowEvent('pointermove', onMouseMove)
 
-  return piles.map((pile, pileIndex) =>
-    pile.length === 0 ? (
-      <Card
-        key={`pile-${pileIndex}`}
-        card={{ cardPileIndex: 0, pileIndex, isEmpty: true, canMove: true }}
-        onMouseUp={onCardRelease}
-        cursorState={cursorState}
-        onMouseDown={onMouseDown}
-      />
-    ) : (
-      pile.map((card, cardPileIndex) => (
+  return (
+    <div>
+      {[0, 1, 2, 3, 4, 5].map(n => (
         <Card
-          key={`card-${card.index}`}
+          key={`pile-${n}`}
+          card={{
+            cardPileIndex: -1,
+            pileIndex: n,
+            isEmpty: true,
+            canMove: true,
+          }}
+          onMouseUp={onCardRelease}
+          cursorState={cursorState}
+          onMouseDown={onMouseDown}
+        />
+      ))}
+
+      {cards.map((card, cardIndex) => (
+        <Card
+          key={`card-${cardIndex}`}
           card={{
             ...card,
             isCheat: !!card.isCheat,
-            isActive: getCardIsActive(activeCard, card, piles),
-            canMove: getCanCardMove(card, piles),
-            deckIndex: deck.findIndex(c => c.index === card.index),
-            pileIndex,
-            cardPileIndex,
+            isActive: getCardIsActive(activeCard, card),
+            canMove: getCanCardMove(card, cards),
+            pileIndex: card.pileIndex,
+            cardPileIndex: card.cardPileIndex,
           }}
           activeCard={activeCard}
           cursorState={cursorState}
           onMouseUp={onCardRelease}
           onMouseDown={onMouseDown}
         />
-      ))
-    ),
+      ))}
+    </div>
   )
 }
 

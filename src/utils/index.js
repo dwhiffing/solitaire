@@ -14,13 +14,16 @@ const CARDS = '987654321'
   .flat()
 
 export const shuffleDeck = () =>
-  chunk(
-    shuffle(CARDS).map((n, i) => ({
-      ...n,
-      index: i,
-    })),
-    6,
-  )
+  chunk(shuffle(CARDS), 6)
+    .map((pile, pileIndex) =>
+      pile.map((n, i) => ({
+        ...n,
+        cardPileIndex: i,
+        pileIndex,
+      })),
+    )
+    .flat()
+    .map((c, i) => ({ ...c, index: i }))
 
 export const isDescending = numbers => {
   return (
@@ -30,77 +33,76 @@ export const isDescending = numbers => {
   )
 }
 
-export const moveCard = (piles, movedCard, destinationCard) => {
-  const destinationPileIndex = destinationCard.isEmpty
-    ? destinationCard.pileIndex
-    : piles.findIndex(pile => pile.find(c => c.index === destinationCard.index))
+export const moveCard = (cards, movedCard, destinationCard) => {
+  const sourcePile = getCardPile(movedCard, cards)
+  const numToMove = sourcePile.length - movedCard.cardPileIndex
+  const allowCheat =
+    numToMove === 1 && !movedCard.isCheat && !destinationCard.isCheat
+  const isCheat =
+    movedCard.value !== destinationCard.value - 1 && !destinationCard.isEmpty
 
-  return piles.map((targetPile, targetPileIndex) => {
-    const cardPileIndex = piles.findIndex(pile =>
-      pile.find(c => c.index === movedCard.index),
-    )
-    const sourcePile = piles[cardPileIndex]
-    const indexInPile = sourcePile.findIndex(
-      card => card.index === movedCard.index,
-    )
-    const numToMove = sourcePile.length - indexInPile
+  const movingCards = sourcePile.slice(
+    movedCard.cardPileIndex,
+    movedCard.cardPileIndex + numToMove,
+  )
 
-    const allowCheat =
-      numToMove === 1 && !movedCard.isCheat && !destinationCard.isCheat
+  const validOrder =
+    destinationCard.isEmpty ||
+    (!destinationCard.isCheat &&
+      isDescending([destinationCard.value, ...movingCards.map(m => m.value)]))
+  return cards.map(card => {
+    if (
+      card.pileIndex !== movedCard.pileIndex ||
+      movedCard.pileIndex === destinationCard.pileIndex
+    ) {
+      return card
+    }
 
-    const isCheat =
-      movedCard.value !== destinationCard.value - 1 && !destinationCard.isEmpty
-
-    const movingCards = sourcePile.slice(indexInPile, indexInPile + numToMove)
-    const validOrder =
-      destinationCard.isEmpty ||
-      (!destinationCard.isCheat &&
-        isDescending([destinationCard.value, ...movingCards.map(m => m.value)]))
-
-    if (cardPileIndex === destinationPileIndex) {
-      return targetPile
+    if (!movingCards.map(c => c.index).includes(card.index)) {
+      return card
     }
 
     if (validOrder || allowCheat) {
-      // remove the active movedCard from its pile
-      if (targetPileIndex === cardPileIndex) {
-        return targetPile.slice(0, targetPile.length - numToMove)
-      }
+      const cardPileIndex =
+        destinationCard.cardPileIndex +
+        movingCards.findIndex(c => c.index === card.index) +
+        1
 
-      // add the active movedCard to the target pile
-      if (targetPileIndex === destinationPileIndex) {
-        return [...targetPile, ...movingCards.map(c => ({ ...c, isCheat }))]
+      console.log(movingCards)
+
+      return {
+        ...card,
+        pileIndex: destinationCard.pileIndex,
+        cardPileIndex,
+        isCheat,
       }
     }
 
-    return targetPile
+    return card
   })
 }
 
-export function getCardIsActive(activeCard, card, piles) {
+export function getCardIsActive(activeCard, card) {
   let isActive = false
 
   if (activeCard) {
-    const { index } = activeCard
-    isActive = index === card.index
-    const activePile = piles.find(pile => pile.find(c => c.index === index))
-    const activeIndexInPile = activePile.findIndex(c => c.index === index)
-    const indexInPile = activePile.findIndex(c => c.index === card.index)
-    isActive = activeIndexInPile <= indexInPile
+    isActive =
+      activeCard.pileIndex === card.pileIndex &&
+      activeCard.cardPileIndex <= card.cardPileIndex
   }
 
   return isActive
 }
 
-export const getCanCardMove = (card, piles) => {
-  const pileIndex = piles.findIndex(pile =>
-    pile.find(c => c.index === card.index),
-  )
-  const pile = piles[pileIndex]
-  const cardPileIndex = pile.findIndex(c => c.index === card.index)
-  return isDescending([
-    ...pile.map(c => c.value).slice(cardPileIndex, pile.length),
-  ])
+export const getCardPile = (card, cards) => {
+  const pile = cards.filter(c => c.pileIndex === card.pileIndex)
+  return pile.sort((a, b) => a.cardPileIndex - b.cardPileIndex)
+}
+
+export const getCanCardMove = (card, cards) => {
+  const pile = getCardPile(card, cards)
+  const bottom = pile.map(c => c.value).slice(card.cardPileIndex, pile.length)
+  return isDescending(bottom)
 }
 
 export const useWindowEvent = (event, callback) => {
