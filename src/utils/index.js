@@ -50,6 +50,7 @@ export const moveCard = (cards, movedCard, destinationCard) => {
     destinationCard.isEmpty ||
     (!destinationCard.isCheat &&
       isDescending([destinationCard.value, ...movingCards.map(m => m.value)]))
+
   return cards.map(card => {
     if (
       card.pileIndex !== movedCard.pileIndex ||
@@ -62,7 +63,10 @@ export const moveCard = (cards, movedCard, destinationCard) => {
       return card
     }
 
-    if (validOrder || allowCheat) {
+    if (
+      (validOrder || allowCheat) &&
+      !Number.isNaN(destinationCard.pileIndex)
+    ) {
       const cardPileIndex =
         destinationCard.cardPileIndex +
         movingCards.findIndex(c => c.index === card.index) +

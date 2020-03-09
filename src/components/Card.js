@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React from 'react'
 import { Motion, spring } from 'react-motion'
 
 const SUITS = ['spades', 'clubs', 'hearts', 'diamonds']
@@ -34,7 +34,7 @@ export const Card = ({
           onPointerDown={onMouseDown.bind(null, card, x, y)}
           onPointerUp={onMouseUp.bind(null, card, x, y)}
           data-index={card.index}
-          data-pileindex={card.pileIndex}
+          data-pileindex={card.pileIndex || -1}
           className={`card ${SUITS[card.suit]} rank${card.value} ${
             shouldFollowCursor ? 'disable-touch' : ''
           }`}

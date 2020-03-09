@@ -58,8 +58,11 @@ function App() {
   const onMouseUp = e => {
     const diffX = Math.abs(cursorState.startX - e.pageX)
     const diffY = Math.abs(cursorState.startY - e.pageY)
-
-    if (activeCard && cursorState.pressedIndex && diffX < 10 && diffY < 10) {
+    if (
+      activeCard &&
+      typeof cursorState.pressedIndex === 'number' &&
+      diffX < 10 && diffY < 10
+    ) {
     } else {
       setActiveCard(null)
     }
@@ -77,24 +80,7 @@ function App() {
     const diffY = Math.abs(cursorState.startY - e.pageY)
 
     if (activeCard && cursorState.pressedIndex && (diffX > 10 || diffY > 10)) {
-      const elementUnder = document.elementFromPoint(e.clientX, e.clientY)
-      if (elementUnder && elementUnder.parentElement) {
-        const dataIndex = elementUnder.parentElement.dataset.index
-        if (dataIndex) {
-          clickedCard = cards[+dataIndex]
-        } else {
-          clickedCard = {
-            cardPileIndex: -1,
-            pileIndex: +elementUnder.parentElement.dataset.pileindex,
-            isEmpty: true,
-            canMove: true,
-          }
-        }
-      }
-      if (clickedCard && !clickedCard.isEmpty) {
-        const pile = getCardPile(clickedCard, cards)
-        clickedCard = pile[pile.length - 1]
-      }
+      const clickedCard = getCardFromPoint(e.clientX, e.clientY, cards)
 
       if (activeCard && clickedCard) {
         setCards(moveCard(cards, activeCard, clickedCard))
@@ -144,3 +130,30 @@ function App() {
 }
 
 export default App
+
+const getCardFromPoint = (x, y, cards) => {
+  let card
+  const elementUnder = document.elementFromPoint(x, y)
+  if (elementUnder && elementUnder.parentElement) {
+    const dataIndex = elementUnder.parentElement.dataset.index
+    if (dataIndex) {
+      card = cards[+dataIndex]
+    } else {
+      let emptyCard = {
+        cardPileIndex: 0,
+        pileIndex: +elementUnder.parentElement.dataset.pileindex,
+        isEmpty: true,
+        canMove: true,
+      }
+      const pile = getCardPile(emptyCard, cards)
+      if (pile.length === 0) {
+        card = { ...emptyCard }
+      }
+    }
+  }
+  if (card && !card.isEmpty) {
+    const pile = getCardPile(card, cards)
+    card = pile[pile.length - 1]
+  }
+  return card
+}
