@@ -13,7 +13,7 @@ export const Card = ({
   const shouldFollowCursor =
     cursorState.isPressed && card.isActive && card.canMove
 
-  const height = window.innerHeight / 18
+  const height = window.innerHeight / 14
   const width = window.innerWidth / 6.2
   const yOffset = shouldFollowCursor
     ? height * Math.abs(activeCard.cardPileIndex - card.cardPileIndex)
@@ -22,7 +22,7 @@ export const Card = ({
   const s = spring(card.isActive ? 1.185 : 1)
   const { mouseX, mouseY } = cursorState
   const xPos = width / 4 + card.pileIndex * width
-  const yPos = height * 1.5 + card.cardPileIndex * height
+  const yPos = card.isEmpty ? height : height + card.cardPileIndex * height
 
   const x = shouldFollowCursor ? mouseX : spring(xPos)
   const y = shouldFollowCursor ? mouseY + yOffset : spring(yPos)
@@ -37,7 +37,7 @@ export const Card = ({
           data-pileindex={card.pileIndex || 0}
           className={`card ${SUITS[card.suit]} rank${card.value} ${
             shouldFollowCursor ? 'disable-touch' : ''
-          }`}
+          } ${card.isEmpty ? 'empty' : ''}`}
           style={{
             transform: `translate3d(${x}px, ${y}px, 0) rotate(${r}deg) scale(${s})`,
             zIndex: shouldFollowCursor
@@ -46,7 +46,6 @@ export const Card = ({
           }}
         >
           <div className="face" />
-          {card.isEmpty && <div className="back" />}
         </div>
       )}
     </Motion>

@@ -5,7 +5,7 @@ import {
   moveCard,
   getCanCardMove,
   getCardIsActive,
-  getCardPile,
+  getCardFromPoint,
 } from './utils'
 import { Card } from './components/Card'
 import './index.css'
@@ -50,6 +50,12 @@ function App() {
     if (isPressed) {
       const mouseY = pageY - topDeltaY
       const mouseX = pageX - topDeltaX
+
+      // TODO show preview of cheat rotation when hovering
+      // const card = getCardFromPoint(mouseX, mouseY, cards)
+      // if (card) {
+      //   console.log(card.value)
+      // }
 
       setCursorState({ ...cursorState, mouseY, mouseX })
     }
@@ -135,30 +141,3 @@ function App() {
 }
 
 export default App
-
-const getCardFromPoint = (x, y, cards) => {
-  let card
-  const elementUnder = document.elementFromPoint(x, y)
-  if (elementUnder && elementUnder.parentElement) {
-    const dataIndex = elementUnder.parentElement.dataset.index
-    if (dataIndex) {
-      card = cards[+dataIndex]
-    } else {
-      let emptyCard = {
-        cardPileIndex: -1,
-        pileIndex: +elementUnder.parentElement.dataset.pileindex,
-        isEmpty: true,
-        canMove: true,
-      }
-      const pile = getCardPile(emptyCard, cards)
-      if (pile.length === 0) {
-        card = { ...emptyCard }
-      }
-    }
-  }
-  if (card && !card.isEmpty) {
-    const pile = getCardPile(card, cards)
-    card = pile[pile.length - 1]
-  }
-  return card
-}
