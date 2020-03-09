@@ -5,13 +5,18 @@ import { useEffect } from 'react'
 const CARDS = '987654321'
   .split('')
   .map(n => Number(n))
-  .map(n => [n, n, n, n])
+  .map(n => [
+    { value: n, suit: 0 },
+    { value: n, suit: 1 },
+    { value: n, suit: 2 },
+    { value: n, suit: 3 },
+  ])
   .flat()
 
 export const shuffleDeck = () =>
   chunk(
     shuffle(CARDS).map((n, i) => ({
-      value: n,
+      ...n,
       index: i,
     })),
     6,

@@ -1,6 +1,8 @@
 import React from 'react'
 import { Motion, spring } from 'react-motion'
 
+const SUITS = ['spades', 'clubs', 'hearts', 'diamonds']
+
 export const Card = ({
   card,
   activeCard,
@@ -35,9 +37,7 @@ export const Card = ({
           onPointerDown={onMouseDown.bind(null, card, x, y)}
           onPointerUp={onMouseUp.bind(null, card, x, y)}
           data-index={card.deckIndex}
-          className={`card spades rank${card.value} ${
-            card.isCheat ? 'is-cheat' : ''
-          } ${card.isActive ? 'is-active' : ''} ${
+          className={`card ${SUITS[card.suit]} rank${card.value} ${
             card.isEmpty ? 'empty' : ''
           } ${shouldFollowCursor ? 'disable-touch' : ''}`}
           style={{
