@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Motion, spring } from 'react-motion'
 
 const SUITS = ['spades', 'clubs', 'hearts', 'diamonds']
@@ -10,8 +10,17 @@ export const Card = ({
   onMouseUp,
   cursorState,
 }) => {
+  const [z, setZ] = useState(1)
   const shouldFollowCursor =
     cursorState.isPressed && card.isActive && card.canMove
+
+  useEffect(() => {
+    let timeout = setTimeout(
+      () => setZ(shouldFollowCursor ? 99 : 1),
+      shouldFollowCursor ? 1 : 500,
+    )
+    return () => clearTimeout(timeout)
+  }, [shouldFollowCursor])
 
   const height = window.innerHeight / 15
   const width = window.innerWidth / 7

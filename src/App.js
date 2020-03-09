@@ -103,6 +103,7 @@ function App() {
           key={`card-${card.index}`}
           card={{
             ...card,
+            isCheat: !!card.isCheat,
             isActive: getCardIsActive(activeCard, card, piles),
             canMove: getCanCardMove(card, piles),
             deckIndex: deck.findIndex(c => c.index === card.index),
