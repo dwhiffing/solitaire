@@ -6,6 +6,8 @@ import {
   getCanCardMove,
   getCardIsActive,
   getCardFromPoint,
+  useOnResize,
+  useForceUpdate,
 } from './utils'
 import { Card } from './components/Card'
 import './index.css'
@@ -16,6 +18,8 @@ function App() {
   const [activeCard, setActiveCard] = useState(null)
   const [cursorState, setCursorState] = useState(initialState)
   const [cards, setCards] = useState([...shuffleDeck()])
+  const forceUpdate = useForceUpdate()
+  useOnResize(forceUpdate)
 
   const onMouseDown = (card, mouseX, mouseY, e) => {
     const { pageX: startX, pageY: startY } = e
