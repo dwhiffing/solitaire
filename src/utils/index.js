@@ -146,19 +146,6 @@ export const getCardFromPoint = (x, y, cards) => {
   return card
 }
 
-export const useOnResize = callback => {
-  useEffect(() => {
-    const resizeListener = () => {
-      callback()
-    }
-    window.addEventListener('resize', resizeListener)
-
-    return () => {
-      window.removeEventListener('resize', resizeListener)
-    }
-  }, [callback])
-}
-
 export const useForceUpdate = () => {
   const [, setValue] = useState(0)
   return () => setValue(value => ++value)

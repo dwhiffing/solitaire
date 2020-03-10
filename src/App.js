@@ -6,11 +6,11 @@ import {
   getCanCardMove,
   getCardIsActive,
   getCardFromPoint,
-  useOnResize,
   useForceUpdate,
 } from './utils'
 import { Card } from './components/Card'
 import './index.css'
+import debounce from 'lodash/debounce'
 
 const initialState = { startX: 0, startY: 0, mouseY: 0, mouseX: 0 }
 
@@ -18,8 +18,7 @@ function App() {
   const [activeCard, setActiveCard] = useState(null)
   const [cursorState, setCursorState] = useState(initialState)
   const [cards, setCards] = useState([...shuffleDeck()])
-  const forceUpdate = useForceUpdate()
-  useOnResize(forceUpdate)
+  useWindowEvent('resize', debounce(useForceUpdate(), 500))
 
   const onMouseDown = (card, mouseX, mouseY, e) => {
     const { pageX: startX, pageY: startY } = e
