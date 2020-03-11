@@ -22,7 +22,6 @@ function App() {
   const [cursorState, setCursorState] = useState(initialState)
   const [cards, setCards] = useState(shuffleDeck())
   const [hasWon, setHasWon] = useState(false)
-  useWindowEvent('resize', debounce(useForceUpdate(), 500))
 
   useEffect(() => {
     const finished = uniq(cards.filter(c => c.isFinished).map(c => c.pileIndex))
@@ -47,22 +46,18 @@ function App() {
       setActiveCard(card)
     }
 
-    setCursorState({
-      ...cursorState,
-      mouseX: card.x,
-      mouseY: card.y,
-      topDeltaX: startX - card.x,
-      topDeltaY: startY - card.y,
-      startX,
-      startY,
-    })
+    const mouseY = card.y
+    const mouseX = card.x
+    const deltaY = startY - card.y
+    const deltaX = startX - card.x
+    setCursorState({ mouseX, mouseY, deltaX, deltaY, startX, startY })
   }
 
   const onMouseMove = ({ pageY, pageX }) => {
-    const { topDeltaX, topDeltaY } = cursorState
+    const { deltaX, deltaY } = cursorState
 
-    const mouseY = pageY - topDeltaY
-    const mouseX = pageX - topDeltaX
+    const mouseY = pageY - deltaY
+    const mouseX = pageX - deltaX
 
     setCursorState({ ...cursorState, mouseY, mouseX })
   }
@@ -70,20 +65,21 @@ function App() {
   const onMouseUp = e => {
     const diffX = Math.abs(cursorState.startX - e.pageX)
     const diffY = Math.abs(cursorState.startY - e.pageY)
-    const passedThreshold = diffX > 10 || diffY > 10
+    const passedThreshold = diffX > 20 || diffY > 20
 
-    if (activeCard && passedThreshold) {
+    if (activeCard) {
       let clickedCard = getCardFromPoint(e.clientX, e.clientY, cards, true)
-
       clickedCard = getBottomCard(clickedCard, cards)
-
-      if (activeCard && clickedCard) {
+      if (clickedCard) {
         setCards(moveCard(cards, activeCard, clickedCard))
       }
-      setActiveCard(null)
+      if (passedThreshold) {
+        setActiveCard(null)
+      }
     }
   }
 
+  useWindowEvent('resize', debounce(useForceUpdate(), 500))
   useWindowEvent('pointerup', onMouseUp)
   useWindowEvent('pointerdown', onMouseDown)
   useWindowEvent('pointermove', onMouseMove)
