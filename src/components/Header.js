@@ -7,14 +7,12 @@ export function Header({ onReset, hasWon }) {
   useEffect(() => {
     if (hasWon && !winRef.current) {
       winRef.current = true
-      setTimeout(() => {
-        alert(
-          `You win! Your final time was ${timer.minutes} minutes, ${timer.seconds} seconds`,
-        )
-        timer.reset()
-        onReset()
-        winRef.current = false
-      }, 1000)
+      alert(
+        `You win! Your final time was ${timer.minutes} minutes, ${timer.seconds} seconds`,
+      )
+      timer.reset()
+      onReset()
+      winRef.current = false
     }
   }, [hasWon, onReset, timer])
   return (

@@ -33,10 +33,15 @@ function App() {
 
   const onMouseDown = e => {
     const { pageX: startX, pageY: startY } = e
+
     let card = getCardFromPoint(e.clientX, e.clientY, cards)
+    if (!card) {
+      return setActiveCard(null)
+    }
+
     const { isActive, canMove, isEmpty, index: pressedIndex } = card
 
-    if (activeCard && card) {
+    if (activeCard) {
       const bottomCard = getBottomCard(card, cards)
       setCards(moveCard(cards, activeCard, bottomCard))
       setActiveCard(null)
