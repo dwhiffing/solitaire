@@ -3,7 +3,7 @@ import { Motion, spring } from 'react-motion'
 import { getCardPosition, getCardSpacing } from '../utils'
 const SUITS = ['spades', 'clubs', 'hearts', 'diamonds']
 
-const config = { stiffness: 220, damping: 20 }
+const config = { stiffness: 200, damping: 20 }
 
 export const Card = ({
   card,
@@ -30,21 +30,11 @@ export const Card = ({
     ? 35 + card.cardPileIndex
     : card.cardPileIndex
 
-  const classes = [
-    'card',
-    card.isFinished ? 'is-finished' : `rank${card.value}`,
-    SUITS[card.suit],
-    card.canMove && 'can-move',
-    card.isActive && 'disable-touch',
-    card.isEmpty && 'empty',
-  ]
-
   return (
     <Motion style={{ x, y, r, s }} onRest={onRest}>
       {({ x, y, r, s }) => (
         <DisplayCard
           card={card}
-          classNames={classes}
           style={{
             transform: `translate3d(${x}px, ${y}px, 0) rotate(${r}deg) scale(${s})`,
             zIndex,
@@ -55,12 +45,14 @@ export const Card = ({
   )
 }
 
-const DisplayCard = ({ card, classNames = [], style = {} }) => {
+const DisplayCard = ({ card, style = {} }) => {
   const classes = [
     'card',
     `rank${card.value}`,
     card.isFinished && 'finished',
-    ...classNames,
+    card.canMove && 'can-move',
+    card.isActive && 'disable-touch',
+    card.isEmpty && 'empty',
     SUITS[card.suit],
   ]
 

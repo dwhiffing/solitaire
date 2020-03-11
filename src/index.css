@@ -91,9 +91,7 @@ body {
 .card.is-cheat {
   background-color: tomato;
 }
-.card.is-finished {
-  box-shadow: none;
-}
+
 .card .face {
   height: 100%;
   background-position: 50% 50%;
@@ -114,6 +112,10 @@ body {
   transition: opacity 500ms;
 }
 
+.card.finished {
+  pointer-events: none;
+  box-shadow: none;
+}
 .card.finished .back {
   opacity: 1;
 }
