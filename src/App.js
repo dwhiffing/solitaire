@@ -141,6 +141,7 @@ function App() {
           onClick={() => {
             const yes = window.confirm('Start a new game?')
             if (yes) {
+              timer.reset()
               setCards(shuffleDeck())
             }
           }}
