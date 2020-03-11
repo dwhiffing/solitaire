@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   shuffleDeck,
   useWindowEvent,
@@ -7,12 +7,12 @@ import {
   getCardIsActive,
   getCardFromPoint,
   useForceUpdate,
-  useTimer,
 } from './utils'
 import { Card } from './components/Card'
 import './index.css'
 import debounce from 'lodash/debounce'
 import uniq from 'lodash/uniq'
+import { Header } from './components/Header'
 
 const initialState = { startX: 0, startY: 0, mouseY: 0, mouseX: 0 }
 
@@ -20,23 +20,15 @@ function App() {
   const [activeCard, setActiveCard] = useState(null)
   const [cursorState, setCursorState] = useState(initialState)
   const [cards, setCards] = useState(shuffleDeck())
-  const winRef = useRef(false)
+  const [hasWon, setHasWon] = useState(false)
   useWindowEvent('resize', debounce(useForceUpdate(), 500))
-  const timer = useTimer()
 
   useEffect(() => {
     const finished = uniq(cards.filter(c => c.isFinished).map(c => c.pileIndex))
-    if (finished.length >= 2 && !winRef.current) {
-      winRef.current = true
-      const time = timer.seconds + timer.minutes * 60
-      setTimeout(() => {
-        alert(`You win! Your final time was ${time} seconds`)
-        setCards(shuffleDeck())
-        timer.reset()
-        winRef.current = false
-      }, 1000)
+    if (finished.length >= 4 && !hasWon) {
+      setHasWon(true)
     }
-  }, [cards, timer])
+  }, [cards, hasWon])
 
   const onMouseDown = (card, mouseX, mouseY, e) => {
     const { pageX: startX, pageY: startY } = e
@@ -125,30 +117,13 @@ function App() {
 
   return (
     <div className="container">
-      <div style={{ width: 80 }}>
-        <span>Solitaire</span>
-      </div>
-
-      <div style={{ width: 80, textAlign: 'center' }}>
-        <span>
-          {`${timer.minutes.toString().padStart(2, '0') +
-            ':'}${timer.seconds.toString().padStart(2, '0')}`}
-        </span>
-      </div>
-
-      <div style={{ width: 80, textAlign: 'center' }}>
-        <span
-          onClick={() => {
-            const yes = window.confirm('Start a new game?')
-            if (yes) {
-              timer.reset()
-              setCards(shuffleDeck())
-            }
-          }}
-        >
-          +
-        </span>
-      </div>
+      <Header
+        hasWon={hasWon}
+        onReset={() => {
+          setCards(shuffleDeck())
+          hasWon(false)
+        }}
+      />
 
       {[0, 1, 2, 3, 4, 5].map(n => (
         <Card
