@@ -176,3 +176,22 @@ export const useForceUpdate = () => {
   const [, setValue] = useState(0)
   return () => setValue(value => ++value)
 }
+
+export const useTimer = () => {
+  const [startTime, setStartTime] = useState(Date.now())
+  const [time, setTime] = useState({ seconds: 0, minutes: 0, hours: 0 })
+
+  useEffect(() => {
+    setTimeout(() => {
+      const difference = Date.now() - startTime
+      setTime({
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+        reset: () => setStartTime(Date.now()),
+      })
+    }, 1000)
+  })
+
+  return time
+}
