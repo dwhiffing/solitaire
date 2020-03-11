@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   shuffleDeck,
   useWindowEvent,
@@ -8,32 +8,40 @@ import {
   getCardFromPoint,
   useForceUpdate,
   getBottomCard,
+  checkForFinishedPiles,
 } from './utils'
 import { Card } from './components/Card'
 import './index.css'
 import debounce from 'lodash/debounce'
-import uniq from 'lodash/uniq'
 import { Header } from './components/Header'
 
-const initialState = { startX: 0, startY: 0, mouseY: 0, mouseX: 0 }
+const initialState = { mouseY: 0, mouseX: 0 }
 
 function App() {
   const [activeCard, setActiveCard] = useState(null)
   const [cursorState, setCursorState] = useState(initialState)
+  const startRef = useRef({ x: 0, y: 0 })
+  const deltaRef = useRef({ x: 0, y: 0 })
+  const [finishedPiles, setFinishedPiles] = useState([])
+  const [pressed, setPressed] = useState(false)
   const [cards, setCards] = useState(shuffleDeck())
   const [hasWon, setHasWon] = useState(false)
 
   useEffect(() => {
-    const finished = uniq(cards.filter(c => c.isFinished).map(c => c.pileIndex))
-    if (finished.length >= 4 && !hasWon) {
-      setHasWon(true)
+    const newFinishedPiles = checkForFinishedPiles(cards)
+    if (!hasWon && newFinishedPiles.length !== finishedPiles.length) {
+      if (newFinishedPiles.length >= 4) {
+        setHasWon(true)
+      }
+      setTimeout(() => setFinishedPiles(newFinishedPiles), 500)
     }
-  }, [cards, hasWon])
+  }, [cards, finishedPiles, hasWon])
 
-  const onMouseDown = e => {
-    const { pageX: startX, pageY: startY } = e
+  const onMouseDown = ({ clientX, clientY }) => {
+    setPressed(true)
 
-    let card = getCardFromPoint(e.clientX, e.clientY, cards)
+    let card = getCardFromPoint(clientX, clientY, cards)
+
     if (!card) {
       return setActiveCard(null)
     }
@@ -41,34 +49,35 @@ function App() {
     if (activeCard) {
       const bottomCard = getBottomCard(card, cards)
       setCards(moveCard(cards, activeCard, bottomCard))
+
       setActiveCard(null)
     } else if (!card.isActive && card.canMove) {
       setActiveCard(card)
     }
-
     const mouseY = card.y
     const mouseX = card.x
-    const deltaY = startY - card.y
-    const deltaX = startX - card.x
-    setCursorState({ mouseX, mouseY, deltaX, deltaY, startX, startY })
+    startRef.current = { x: clientX, y: clientY }
+    deltaRef.current = { x: clientX - card.x, y: clientY - card.y }
+
+    setCursorState({ mouseX, mouseY })
   }
 
-  const onMouseMove = ({ pageY, pageX }) => {
-    const { deltaX, deltaY } = cursorState
-
-    const mouseY = pageY - deltaY
-    const mouseX = pageX - deltaX
-
-    setCursorState({ ...cursorState, mouseY, mouseX })
+  const onMouseMove = ({ clientY, clientX }) => {
+    const mouseY = clientY - deltaRef.current.y
+    const mouseX = clientX - deltaRef.current.x
+    setCursorState({ mouseY, mouseX })
   }
 
-  const onMouseUp = e => {
-    const diffX = Math.abs(cursorState.startX - e.pageX)
-    const diffY = Math.abs(cursorState.startY - e.pageY)
-    const passedThreshold = diffX > 20 || diffY > 20
+  const onMouseUp = ({ clientX, clientY }) => {
+    const diffX = Math.abs(startRef.current.x - clientX)
+    const diffY = Math.abs(startRef.current.y - clientY)
+    const passedThreshold = diffX > 15 || diffY > 15
+
+    deltaRef.current = { x: 0, y: 0 }
+    setPressed(false)
 
     if (activeCard) {
-      let clickedCard = getCardFromPoint(e.clientX, e.clientY, cards, true)
+      let clickedCard = getCardFromPoint(clientX, clientY, cards)
       clickedCard = getBottomCard(clickedCard, cards)
       if (clickedCard) {
         setCards(moveCard(cards, activeCard, clickedCard))
@@ -112,8 +121,10 @@ function App() {
             ...card,
             isActive: getCardIsActive(activeCard, card),
             canMove: getCanCardMove(card, cards),
+            isFinished: finishedPiles.includes(card.pileIndex),
           }}
           activeCard={activeCard}
+          isPressed={pressed}
           mouseX={cursorState.mouseX}
           mouseY={cursorState.mouseY}
         />

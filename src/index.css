@@ -71,12 +71,20 @@ body {
 .card:before {
   top: 0.2rem;
   left: 0.025rem;
+  pointer-events: none;
 }
 .card:after {
   bottom: 0.1rem;
   right: 0.025rem;
+  pointer-events: none;
   transform: rotate(180deg);
 }
+
+.card.finished:after,
+.card.finished:before {
+  opacity: 0;
+}
+
 .card.is-active {
   background-color: khaki !important;
 }
@@ -102,7 +110,18 @@ body {
   height: 100%;
   top: 0;
   left: 0;
+  opacity: 0;
+  transition: opacity 500ms;
 }
+
+.card.finished .back {
+  opacity: 1;
+}
+
+.card.finished .face {
+  opacity: 0;
+}
+
 .disable-touch {
   pointer-events: none;
   touch-action: none;

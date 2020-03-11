@@ -3,25 +3,29 @@ import { Motion, spring } from 'react-motion'
 import { getCardPosition, getCardSpacing } from '../utils'
 const SUITS = ['spades', 'clubs', 'hearts', 'diamonds']
 
+const config = { stiffness: 220, damping: 20 }
+
 export const Card = ({
   card,
   activeCard,
   onRest = () => {},
   mouseX = 0,
   mouseY = 0,
+  isPressed,
 }) => {
   const { height } = getCardSpacing()
   const { x: xPos, y: yPos } = getCardPosition(card)
 
-  const shouldFollowCursor = card.isActive && card.canMove
+  const shouldFollowCursor = card.isActive && isPressed
+
   const yOffset = shouldFollowCursor
     ? height * Math.abs(activeCard.cardPileIndex - card.cardPileIndex)
     : 0
 
-  const x = shouldFollowCursor ? mouseX : spring(xPos)
-  const y = shouldFollowCursor ? mouseY + yOffset : spring(yPos)
-  const r = spring(card.isCheat ? 22 : 0)
-  const s = spring(card.isActive ? 1.185 : 1)
+  const x = shouldFollowCursor ? mouseX : spring(xPos, config)
+  const y = shouldFollowCursor ? mouseY + yOffset : spring(yPos, config)
+  const r = spring(card.isCheat ? 22 : 0, config)
+  const s = spring(card.isActive ? 1.185 : 1, config)
   const zIndex = shouldFollowCursor
     ? 35 + card.cardPileIndex
     : card.cardPileIndex
@@ -31,7 +35,7 @@ export const Card = ({
     card.isFinished ? 'is-finished' : `rank${card.value}`,
     SUITS[card.suit],
     card.canMove && 'can-move',
-    shouldFollowCursor && 'disable-touch',
+    card.isActive && 'disable-touch',
     card.isEmpty && 'empty',
   ]
 
@@ -54,8 +58,9 @@ export const Card = ({
 const DisplayCard = ({ card, classNames = [], style = {} }) => {
   const classes = [
     'card',
+    `rank${card.value}`,
+    card.isFinished && 'finished',
     ...classNames,
-    card.isFinished ? 'is-finished' : `rank${card.value}`,
     SUITS[card.suit],
   ]
 
@@ -67,7 +72,7 @@ const DisplayCard = ({ card, classNames = [], style = {} }) => {
       style={style}
     >
       <div className="face" />
-      {card.isFinished && <div className="back" />}
+      <div className="back" />
     </div>
   )
 }

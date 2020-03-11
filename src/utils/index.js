@@ -60,7 +60,7 @@ export const moveCard = (cards, movedCard, destinationCard) => {
     (!destinationCard.isCheat &&
       isDescending([destinationCard.value, ...movingCards.map(m => m.value)]))
 
-  const newCards = cards.map(card => {
+  return cards.map(card => {
     if (
       card.pileIndex !== movedCard.pileIndex ||
       movedCard.pileIndex === destinationCard.pileIndex
@@ -91,23 +91,20 @@ export const moveCard = (cards, movedCard, destinationCard) => {
 
     return card
   })
+}
 
+export const checkForFinishedPiles = cards => {
   const piles = Object.values(
-    groupBy(newCards, card => card.pileIndex),
+    groupBy(cards, card => card.pileIndex),
   ).map(pile => pile.sort((a, b) => a.cardPileIndex - b.cardPileIndex))
 
-  const finishedPiles = piles
+  return piles
     .map(pile => ({
       pile: pile.map(card => card.value).join(''),
       index: pile[0].pileIndex,
     }))
     .filter(({ pile }) => pile === '987654321')
     .map(pile => pile.index)
-
-  return newCards.map(c => ({
-    ...c,
-    isFinished: finishedPiles.includes(c.pileIndex),
-  }))
 }
 
 export function getCardIsActive(activeCard, card) {
