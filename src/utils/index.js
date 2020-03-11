@@ -40,7 +40,7 @@ export const isDescending = numbers => {
 
 export const moveCard = (cards, movedCard, destinationCard) => {
   const sourcePile = getCardPile(movedCard, cards)
-  if (movedCard.isFinished || destinationCard.isFinished) {
+  if (movedCard.isFinished || !destinationCard || destinationCard.isFinished) {
     return cards
   }
 
@@ -127,6 +127,20 @@ export const getCardPile = (card, cards) => {
   return pile.sort((a, b) => a.cardPileIndex - b.cardPileIndex)
 }
 
+export const getBottomCard = (card, cards) => {
+  if (!card) {
+    return null
+  }
+
+  if (card.isEmpty) {
+    return card
+  }
+
+  const pile = getCardPile(card, cards)
+  card = pile[pile.length - 1]
+  return decorateCard(card, cards)
+}
+
 export const getCanCardMove = (card, cards) => {
   const pile = getCardPile(card, cards)
   const bottom = pile.map(c => c.value).slice(card.cardPileIndex, pile.length)
@@ -159,18 +173,23 @@ export const getCardFromPoint = (x, y, cards) => {
       const pile = getCardPile(emptyCard, cards)
 
       if (pile.length === 0) {
-        card = { ...emptyCard }
+        return { ...emptyCard, ...getCardPosition(emptyCard) }
       }
     }
   }
 
-  if (card && !card.isEmpty) {
-    const pile = getCardPile(card, cards)
-    card = pile[pile.length - 1]
-  }
-
-  return card
+  return decorateCard(card, cards)
 }
+
+const decorateCard = (card, cards) =>
+  card
+    ? {
+        ...card,
+        ...getCardPosition(card),
+        canMove: getCanCardMove(card, cards),
+        isActive: getCardIsActive(card, cards),
+      }
+    : null
 
 export const useForceUpdate = () => {
   const [, setValue] = useState(0)
@@ -194,4 +213,28 @@ export const useTimer = () => {
   })
 
   return time
+}
+
+export const getCardSpacing = () => {
+  const width = window.innerWidth / 6.2
+  let height = Math.min(38, Math.max(window.innerHeight / 16, 25))
+  let yBuffer = height * 2
+
+  if (window.innerWidth > 1000) {
+    height = Math.min(50, Math.max(window.innerHeight / 16, 25))
+    yBuffer = height * 3
+  }
+
+  return { width, height, yBuffer }
+}
+
+export const getCardPosition = card => {
+  const { width, height, yBuffer } = getCardSpacing()
+
+  const x = width / 4 + card.pileIndex * width
+  const y = card.isEmpty
+    ? yBuffer
+    : yBuffer + (card.isFinished ? 0 : card.cardPileIndex * height)
+
+  return { x, y }
 }

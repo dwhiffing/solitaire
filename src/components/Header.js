@@ -1,15 +1,19 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTimer } from '../utils'
 export function Header({ onReset, hasWon }) {
+  const winRef = useRef(false)
   const timer = useTimer()
+
   useEffect(() => {
-    if (hasWon) {
+    if (hasWon && !winRef.current) {
+      winRef.current = true
       setTimeout(() => {
         alert(
           `You win! Your final time was ${timer.minutes} minutes, ${timer.seconds} seconds`,
         )
         timer.reset()
         onReset()
+        winRef.current = false
       }, 1000)
     }
   }, [hasWon, onReset, timer])

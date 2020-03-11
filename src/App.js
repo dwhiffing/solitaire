@@ -7,6 +7,7 @@ import {
   getCardIsActive,
   getCardFromPoint,
   useForceUpdate,
+  getBottomCard,
 } from './utils'
 import { Card } from './components/Card'
 import './index.css'
@@ -30,11 +31,14 @@ function App() {
     }
   }, [cards, hasWon])
 
-  const onMouseDown = (card, mouseX, mouseY, e) => {
+  const onMouseDown = e => {
     const { pageX: startX, pageY: startY } = e
+    let card = getCardFromPoint(e.clientX, e.clientY, cards)
     const { isActive, canMove, isEmpty, index: pressedIndex } = card
-    if (activeCard) {
-      setCards(moveCard(cards, activeCard, card))
+
+    if (activeCard && card) {
+      const bottomCard = getBottomCard(card, cards)
+      setCards(moveCard(cards, activeCard, bottomCard))
       setActiveCard(null)
     } else if (isActive || !canMove || (!activeCard && isEmpty)) {
       setActiveCard(null)
@@ -43,10 +47,11 @@ function App() {
     }
 
     setCursorState({
-      topDeltaY: startY - mouseY,
-      topDeltaX: startX - mouseX,
-      mouseY,
-      mouseX,
+      ...cursorState,
+      mouseX: card.x,
+      mouseY: card.y,
+      topDeltaX: startX - card.x,
+      topDeltaY: startY - card.y,
       startX,
       startY,
       pressedIndex,
@@ -60,12 +65,6 @@ function App() {
       const mouseY = pageY - topDeltaY
       const mouseX = pageX - topDeltaX
 
-      // TODO show preview of cheat rotation when hovering
-      // const card = getCardFromPoint(mouseX, mouseY, cards)
-      // if (card) {
-      //   console.log(card.value)
-      // }
-
       setCursorState({ ...cursorState, mouseY, mouseX })
     }
   }
@@ -73,13 +72,16 @@ function App() {
   const onMouseUp = e => {
     const diffX = Math.abs(cursorState.startX - e.pageX)
     const diffY = Math.abs(cursorState.startY - e.pageY)
-    if (
-      activeCard &&
-      typeof cursorState.pressedIndex === 'number' &&
-      diffX < 10 &&
-      diffY < 10
-    ) {
-    } else {
+    const passedThreshold = diffX > 10 || diffY > 10
+
+    if (activeCard && passedThreshold) {
+      let clickedCard = getCardFromPoint(e.clientX, e.clientY, cards, true)
+
+      clickedCard = getBottomCard(clickedCard, cards)
+
+      if (activeCard && clickedCard) {
+        setCards(moveCard(cards, activeCard, clickedCard))
+      }
       setActiveCard(null)
     }
 
@@ -90,24 +92,8 @@ function App() {
     })
   }
 
-  const onCardRelease = (clickedCard, x, y, e) => {
-    const diffX = Math.abs(cursorState.startX - e.pageX)
-    const diffY = Math.abs(cursorState.startY - e.pageY)
-
-    if (
-      activeCard &&
-      typeof cursorState.pressedIndex === 'number' &&
-      (diffX > 10 || diffY > 10)
-    ) {
-      const clickedCard = getCardFromPoint(e.clientX, e.clientY, cards)
-
-      if (activeCard && clickedCard) {
-        setCards(moveCard(cards, activeCard, clickedCard))
-      }
-    }
-  }
-
   useWindowEvent('pointerup', onMouseUp)
+  useWindowEvent('pointerdown', onMouseDown)
   useWindowEvent('pointermove', onMouseMove)
 
   return (
@@ -116,7 +102,7 @@ function App() {
         hasWon={hasWon}
         onReset={() => {
           setCards(shuffleDeck())
-          hasWon(false)
+          setHasWon(false)
         }}
       />
 
@@ -129,8 +115,6 @@ function App() {
             isEmpty: true,
             canMove: true,
           }}
-          onMouseUp={onCardRelease}
-          onMouseDown={onMouseDown}
         />
       ))}
 
@@ -143,9 +127,8 @@ function App() {
             canMove: getCanCardMove(card, cards),
           }}
           activeCard={activeCard}
-          cursorState={cursorState}
-          onMouseUp={onCardRelease}
-          onMouseDown={onMouseDown}
+          mouseX={cursorState.mouseX}
+          mouseY={cursorState.mouseY}
         />
       ))}
     </div>
