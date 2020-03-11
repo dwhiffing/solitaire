@@ -1,3 +1,4 @@
+card doesn't respect relative hover distance if clicked between animations
 only re-render after animations finish
 should rotate while dragging above potential drop points
 fix z-index for good

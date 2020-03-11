@@ -168,7 +168,6 @@ export const getCardFromPoint = (x, y, cards) => {
         cardPileIndex: -1,
         pileIndex: +elementUnder.parentElement.dataset.pileindex,
         isEmpty: true,
-        canMove: true,
       }
       const pile = getCardPile(emptyCard, cards)
 

@@ -39,15 +39,11 @@ function App() {
       return setActiveCard(null)
     }
 
-    const { isActive, canMove, isEmpty, index: pressedIndex } = card
-
     if (activeCard) {
       const bottomCard = getBottomCard(card, cards)
       setCards(moveCard(cards, activeCard, bottomCard))
       setActiveCard(null)
-    } else if (isActive || !canMove || (!activeCard && isEmpty)) {
-      setActiveCard(null)
-    } else {
+    } else if (!card.isActive && card.canMove) {
       setActiveCard(card)
     }
 
@@ -59,19 +55,16 @@ function App() {
       topDeltaY: startY - card.y,
       startX,
       startY,
-      pressedIndex,
     })
   }
 
   const onMouseMove = ({ pageY, pageX }) => {
-    const { pressedIndex, topDeltaX, topDeltaY } = cursorState
+    const { topDeltaX, topDeltaY } = cursorState
 
-    if (typeof pressedIndex === 'number') {
-      const mouseY = pageY - topDeltaY
-      const mouseX = pageX - topDeltaX
+    const mouseY = pageY - topDeltaY
+    const mouseX = pageX - topDeltaX
 
-      setCursorState({ ...cursorState, mouseY, mouseX })
-    }
+    setCursorState({ ...cursorState, mouseY, mouseX })
   }
 
   const onMouseUp = e => {
@@ -89,12 +82,6 @@ function App() {
       }
       setActiveCard(null)
     }
-
-    setCursorState({
-      ...cursorState,
-      pressedIndex: null,
-      topDeltaY: 0,
-    })
   }
 
   useWindowEvent('pointerup', onMouseUp)
@@ -118,7 +105,6 @@ function App() {
             cardPileIndex: -1,
             pileIndex: n,
             isEmpty: true,
-            canMove: true,
           }}
         />
       ))}
