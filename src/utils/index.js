@@ -1,17 +1,22 @@
 import shuffle from 'lodash/shuffle'
 import chunk from 'lodash/chunk'
 import { useEffect, useState } from 'react'
+import groupBy from 'lodash/groupBy'
 
-const CARDS = '987654321'
-  .split('')
-  .map(n => Number(n))
+const VALUES = '987654321'
+
+const CARDS = VALUES.split('')
   .map(n => [
-    { value: n, suit: 0 },
-    { value: n, suit: 1 },
-    { value: n, suit: 2 },
-    { value: n, suit: 3 },
+    { value: Number(n), suit: 0 },
+    { value: Number(n), suit: 1 },
+    { value: Number(n), suit: 2 },
+    { value: Number(n), suit: 3 },
   ])
   .flat()
+
+export const SORTED_CARDS = VALUES.split('')
+  .map(n => ({ value: Number(n), suit: 0 }))
+  .concat(VALUES.split('').map(n => ({ value: Number(n), suit: 1 })))
 
 export const shuffleDeck = () =>
   chunk(shuffle(CARDS), 6)
@@ -35,6 +40,10 @@ export const isDescending = numbers => {
 
 export const moveCard = (cards, movedCard, destinationCard) => {
   const sourcePile = getCardPile(movedCard, cards)
+  if (movedCard.isFinished || destinationCard.isFinished) {
+    return cards
+  }
+
   const numToMove = sourcePile.length - movedCard.cardPileIndex
   const allowCheat =
     numToMove === 1 && !movedCard.isCheat && !destinationCard.isCheat
@@ -51,7 +60,7 @@ export const moveCard = (cards, movedCard, destinationCard) => {
     (!destinationCard.isCheat &&
       isDescending([destinationCard.value, ...movingCards.map(m => m.value)]))
 
-  return cards.map(card => {
+  const newCards = cards.map(card => {
     if (
       card.pileIndex !== movedCard.pileIndex ||
       movedCard.pileIndex === destinationCard.pileIndex
@@ -82,6 +91,23 @@ export const moveCard = (cards, movedCard, destinationCard) => {
 
     return card
   })
+
+  const piles = Object.values(
+    groupBy(newCards, card => card.pileIndex),
+  ).map(pile => pile.sort((a, b) => a.cardPileIndex - b.cardPileIndex))
+
+  const finishedPiles = piles
+    .map(pile => ({
+      pile: pile.map(card => card.value).join(''),
+      index: pile[0].pileIndex,
+    }))
+    .filter(({ pile }) => pile === '987654321')
+    .map(pile => pile.index)
+
+  return newCards.map(c => ({
+    ...c,
+    isFinished: finishedPiles.includes(c.pileIndex),
+  }))
 }
 
 export function getCardIsActive(activeCard, card) {

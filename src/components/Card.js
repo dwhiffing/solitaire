@@ -22,22 +22,33 @@ export const Card = ({
   const s = spring(card.isActive ? 1.185 : 1)
   const { mouseX, mouseY } = cursorState
   const xPos = width / 4 + card.pileIndex * width
-  const yPos = card.isEmpty ? height : height + card.cardPileIndex * height
+  const yPos = card.isEmpty
+    ? height
+    : height + (card.isFinished ? 0 : card.cardPileIndex * height)
 
   const x = shouldFollowCursor ? mouseX : spring(xPos)
   const y = shouldFollowCursor ? mouseY + yOffset : spring(yPos)
+  const classes = [
+    'card',
+    card.isFinished ? 'is-finished' : `rank${card.value}`,
+    SUITS[card.suit],
+    shouldFollowCursor && 'disable-touch',
+    card.isEmpty && 'empty',
+  ]
 
   return (
     <Motion style={{ x, y, r, s }}>
       {({ x, y, r, s }) => (
         <div
-          onPointerDown={onMouseDown.bind(null, card, x, y)}
-          onPointerUp={onMouseUp.bind(null, card, x, y)}
+          onPointerDown={
+            card.isFinished ? null : onMouseDown.bind(null, card, x, y)
+          }
+          onPointerUp={
+            card.isFinished ? null : onMouseUp.bind(null, card, x, y)
+          }
           data-index={card.index}
           data-pileindex={card.pileIndex || 0}
-          className={`card ${SUITS[card.suit]} rank${card.value} ${
-            shouldFollowCursor ? 'disable-touch' : ''
-          } ${card.isEmpty ? 'empty' : ''}`}
+          className={classes.join(' ')}
           style={{
             transform: `translate3d(${x}px, ${y}px, 0) rotate(${r}deg) scale(${s})`,
             zIndex: shouldFollowCursor
@@ -46,6 +57,7 @@ export const Card = ({
           }}
         >
           <div className="face" />
+          {card.isFinished && <div className="back" />}
         </div>
       )}
     </Motion>

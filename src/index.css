@@ -73,6 +73,9 @@ body {
 .card.is-cheat {
   background-color: tomato;
 }
+.card.is-finished {
+  box-shadow: none;
+}
 .card .face {
   height: 100%;
   background-position: 50% 50%;
