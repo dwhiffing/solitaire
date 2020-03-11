@@ -15,6 +15,7 @@ export function Header({ onReset, hasWon }) {
       winRef.current = false
     }
   }, [hasWon, onReset, timer])
+
   return (
     <>
       <div style={{ width: 80 }}>

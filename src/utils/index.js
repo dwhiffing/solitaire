@@ -200,16 +200,24 @@ export const useTimer = () => {
   const [time, setTime] = useState({ seconds: 0, minutes: 0, hours: 0 })
 
   useEffect(() => {
-    setTimeout(() => {
+    let interval = setInterval(() => {
       const difference = Date.now() - startTime
       setTime({
         hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
         minutes: Math.floor((difference / 1000 / 60) % 60),
         seconds: Math.floor((difference / 1000) % 60),
-        reset: () => setStartTime(Date.now()),
+        reset: () => {
+          setStartTime(Date.now())
+          clearTimeout(interval)
+          setTime({ seconds: 0, minutes: 0, hours: 0 })
+        },
       })
     }, 1000)
-  })
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [startTime])
 
   return time
 }
