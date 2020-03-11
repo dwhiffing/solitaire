@@ -221,14 +221,16 @@ export const useTimer = () => {
 
 export const getCardSpacing = () => {
   const card = document.querySelector('.card')
-  const cardWidth = card ? card.clientWidth : window.innerWidth / 6
-  const xBuffer = (window.innerWidth - cardWidth * 6) / 7
+  const cardWidth = card
+    ? card.clientWidth
+    : document.documentElement.clientWidth / 6
+  const xBuffer = (document.documentElement.clientWidth - cardWidth * 6) / 7
   const width = cardWidth + xBuffer
 
   let height = Math.min(38, Math.max(window.innerHeight / 16, 25))
   let yBuffer = height * 2
 
-  if (window.innerWidth > 1000) {
+  if (document.documentElement.clientWidth > 1000) {
     height = Math.min(50, Math.max(window.innerHeight / 16, 25))
     yBuffer = height * 3
   }
