@@ -6,12 +6,14 @@ const SUITS = ['spades', 'clubs', 'hearts', 'diamonds']
 export const Card = ({
   card,
   activeCard,
-  onMouseDown,
-  onMouseUp,
-  cursorState,
+  onMouseDown = () => {},
+  onMouseUp = () => {},
+  cursorState = { mouseX: 0, mouseY: 0, pressedIndex: null },
 }) => {
   const shouldFollowCursor =
-    cursorState.isPressed && card.isActive && card.canMove
+    typeof cursorState.pressedIndex === 'number' &&
+    card.isActive &&
+    card.canMove
 
   let height = Math.min(38, Math.max(window.innerHeight / 16, 25))
   let yBuffer = height * 2
@@ -45,27 +47,52 @@ export const Card = ({
   return (
     <Motion style={{ x, y, r, s }}>
       {({ x, y, r, s }) => (
-        <div
+        <DisplayCard
+          card={card}
+          classNames={classes}
           onPointerDown={
             card.isFinished ? null : onMouseDown.bind(null, card, x, y)
           }
           onPointerUp={
             card.isFinished ? null : onMouseUp.bind(null, card, x, y)
           }
-          data-index={card.index}
-          data-pileindex={card.pileIndex || 0}
-          className={classes.join(' ')}
           style={{
             transform: `translate3d(${x}px, ${y}px, 0) rotate(${r}deg) scale(${s})`,
             zIndex: shouldFollowCursor
               ? 35 + card.cardPileIndex
               : card.cardPileIndex,
           }}
-        >
-          <div className="face" />
-          {card.isFinished && <div className="back" />}
-        </div>
+        />
       )}
     </Motion>
+  )
+}
+
+const DisplayCard = ({
+  card,
+  classNames = [],
+  style = {},
+  onPointerDown,
+  onPointerUp,
+}) => {
+  const classes = [
+    'card',
+    ...classNames,
+    card.isFinished ? 'is-finished' : `rank${card.value}`,
+    SUITS[card.suit],
+  ]
+
+  return (
+    <div
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      data-index={card.index}
+      data-pileindex={card.pileIndex}
+      className={classes.join(' ')}
+      style={style}
+    >
+      <div className="face" />
+      {card.isFinished && <div className="back" />}
+    </div>
   )
 }

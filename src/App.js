@@ -32,14 +32,11 @@ function App() {
 
   const onMouseDown = (card, mouseX, mouseY, e) => {
     const { pageX: startX, pageY: startY } = e
+    const { isActive, canMove, isEmpty, index: pressedIndex } = card
     if (activeCard) {
       setCards(moveCard(cards, activeCard, card))
       setActiveCard(null)
-    } else if (
-      card.isActive ||
-      !card.canMove ||
-      (!activeCard && card.isEmpty)
-    ) {
+    } else if (isActive || !canMove || (!activeCard && isEmpty)) {
       setActiveCard(null)
     } else {
       setActiveCard(card)
@@ -52,15 +49,14 @@ function App() {
       mouseX,
       startX,
       startY,
-      isPressed: true,
-      pressedIndex: card.index,
+      pressedIndex,
     })
   }
 
   const onMouseMove = ({ pageY, pageX }) => {
-    const { isPressed, topDeltaY, topDeltaX } = cursorState
+    const { pressedIndex, topDeltaX, topDeltaY } = cursorState
 
-    if (isPressed) {
+    if (typeof pressedIndex === 'number') {
       const mouseY = pageY - topDeltaY
       const mouseX = pageX - topDeltaX
 
@@ -89,7 +85,6 @@ function App() {
 
     setCursorState({
       ...cursorState,
-      isPressed: false,
       pressedIndex: null,
       topDeltaY: 0,
     })
@@ -135,7 +130,6 @@ function App() {
             canMove: true,
           }}
           onMouseUp={onCardRelease}
-          cursorState={cursorState}
           onMouseDown={onMouseDown}
         />
       ))}
@@ -145,11 +139,8 @@ function App() {
           key={`card-${cardIndex}`}
           card={{
             ...card,
-            isCheat: !!card.isCheat,
             isActive: getCardIsActive(activeCard, card),
             canMove: getCanCardMove(card, cards),
-            pileIndex: card.pileIndex,
-            cardPileIndex: card.cardPileIndex,
           }}
           activeCard={activeCard}
           cursorState={cursorState}
