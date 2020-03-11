@@ -1,7 +1,6 @@
-card doesn't respect relative hover distance if clicked between animations
-only re-render after animations finish
+window resizes when card is held outside
+only re-render after animations finish?
 fix z-index for good
-fix cards being off-center sometimes
 make drop area for cards larger
 allow dropping into pile from below
 should rotate while dragging above potential drop points
