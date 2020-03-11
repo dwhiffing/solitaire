@@ -13,7 +13,13 @@ export const Card = ({
   const shouldFollowCursor =
     cursorState.isPressed && card.isActive && card.canMove
 
-  const height = Math.min(38, Math.max(window.innerHeight / 16, 25))
+  let height = Math.min(38, Math.max(window.innerHeight / 16, 25))
+  let yBuffer = height * 2
+  if (window.innerWidth > 1000) {
+    height = Math.min(50, Math.max(window.innerHeight / 16, 25))
+    yBuffer = height * 3
+  }
+
   const width = window.innerWidth / 6.2
   const yOffset = shouldFollowCursor
     ? height * Math.abs(activeCard.cardPileIndex - card.cardPileIndex)
@@ -23,8 +29,8 @@ export const Card = ({
   const { mouseX, mouseY } = cursorState
   const xPos = width / 4 + card.pileIndex * width
   const yPos = card.isEmpty
-    ? height * 2
-    : height * 2 + (card.isFinished ? 0 : card.cardPileIndex * height)
+    ? yBuffer
+    : yBuffer + (card.isFinished ? 0 : card.cardPileIndex * height)
 
   const x = shouldFollowCursor ? mouseX : spring(xPos)
   const y = shouldFollowCursor ? mouseY + yOffset : spring(yPos)

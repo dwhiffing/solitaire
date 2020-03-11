@@ -29,12 +29,13 @@ body {
 
 .container {
   display: flex;
-  flex: 1;
+  flex: 1 1;
   justify-content: space-between;
-  margin-top: 3.25vh;
-  margin-left: 35px;
-  margin-right: 35px;
+  margin-left: 4vh;
+  margin-right: 4vh;
   color: white;
+  align-items: center;
+  height: 10vh;
 }
 
 #root {
