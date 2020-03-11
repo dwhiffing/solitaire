@@ -1,4 +1,3 @@
-window resizes when card is held outside
 only re-render after animations finish?
 fix z-index for good
 make drop area for cards larger
