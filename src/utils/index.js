@@ -1,6 +1,6 @@
 import shuffle from 'lodash/shuffle'
 import chunk from 'lodash/chunk'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import groupBy from 'lodash/groupBy'
 
 const VALUES = '987654321'
@@ -151,6 +151,13 @@ export const useWindowEvent = (event, callback) => {
   }, [event, callback])
 }
 
+export const useDocumentEvent = (event, callback) => {
+  useEffect(() => {
+    document.addEventListener(event, callback)
+    return () => document.removeEventListener(event, callback)
+  }, [event, callback])
+}
+
 export const getCardFromPoint = (x, y, cards) => {
   let card
   const elementUnder = document.elementFromPoint(x, y)
@@ -193,30 +200,55 @@ export const useForceUpdate = () => {
 }
 
 export const useTimer = () => {
-  const [startTime, setStartTime] = useState(Date.now())
-  const [time, setTime] = useState({ seconds: 0, minutes: 0, hours: 0 })
+  const timeStopped = useRef(Date.now())
+  const intervalRef = useRef()
+  const [state, setState] = useState({
+    startTime: Date.now(),
+    timeGone: 0,
+    difference: 0,
+  })
+
+  const startTimer = () => {
+    setState(state => ({
+      ...state,
+      timeGone: state.timeGone + (Date.now() - timeStopped.current),
+    }))
+
+    intervalRef.current = setInterval(() => {
+      setState(state => ({
+        ...state,
+        difference: Date.now() - state.startTime - state.timeGone,
+      }))
+    }, 100)
+  }
+
+  const stopTimer = () => {
+    timeStopped.current = Date.now()
+    clearInterval(intervalRef.current)
+  }
 
   useEffect(() => {
-    let interval = setInterval(() => {
-      const difference = Date.now() - startTime
-      setTime({
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
-        reset: () => {
-          setStartTime(Date.now())
-          clearTimeout(interval)
-          setTime({ seconds: 0, minutes: 0, hours: 0 })
-        },
+    startTimer()
+    return stopTimer
+  }, [])
+
+  useDocumentEvent('visibilitychange', () =>
+    document.hidden ? stopTimer() : startTimer(),
+  )
+
+  return {
+    minutes: Math.floor((state.difference / 1000 / 60) % 60),
+    seconds: Math.floor((state.difference / 1000) % 60),
+    reset: () => {
+      timeStopped.current = Date.now()
+
+      setState({
+        startTime: Date.now(),
+        timeGone: 0,
+        difference: 0,
       })
-    }, 1000)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [startTime])
-
-  return time
+    },
+  }
 }
 
 export const getCardSpacing = () => {

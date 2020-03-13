@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { useTimer } from '../utils'
+
 export function Header({ onReset, hasWon }) {
   const winRef = useRef(false)
   const timer = useTimer()
