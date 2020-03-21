@@ -2,9 +2,15 @@ html {
   font-size: 3vw;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 400px) {
   html {
-    font-size: 14px;
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 800px) {
+  html {
+    font-size: 24px;
   }
 }
 

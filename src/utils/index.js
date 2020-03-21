@@ -253,16 +253,15 @@ export const useTimer = () => {
 
 export const getCardSpacing = () => {
   const card = document.querySelector('.card')
-  const cardWidth = card
-    ? card.clientWidth
-    : document.documentElement.clientWidth / 6
-  const xBuffer = (document.documentElement.clientWidth - cardWidth * 6) / 7
+  let outerWidth = Math.min(document.documentElement.clientWidth, 740)
+  const cardWidth = card ? card.clientWidth : outerWidth / 6
+  const xBuffer = (outerWidth - cardWidth * 6) / 7
   const width = cardWidth + xBuffer
 
-  let height = Math.min(38, Math.max(window.innerHeight / 16, 25))
-  let yBuffer = height * 2
+  let height = Math.min(28, Math.max(window.innerHeight / 16, 25))
+  let yBuffer = Math.min(200, Math.max(window.innerHeight / 8, 40))
 
-  if (document.documentElement.clientWidth > 1000) {
+  if (document.documentElement.clientWidth > 900) {
     height = Math.min(50, Math.max(window.innerHeight / 16, 25))
     yBuffer = height * 3
   }
@@ -272,8 +271,10 @@ export const getCardSpacing = () => {
 
 export const getCardPosition = card => {
   const { width, height, yBuffer, xBuffer } = getCardSpacing()
+  const outerWidth = document.documentElement.clientWidth
+  const leftoverSpace = (outerWidth - width * 6) / 2 - xBuffer / 2
 
-  const x = xBuffer + card.pileIndex * width
+  const x = xBuffer + card.pileIndex * width + leftoverSpace
   const y = card.isEmpty
     ? yBuffer
     : yBuffer + (card.isFinished ? 0 : card.cardPileIndex * height)
