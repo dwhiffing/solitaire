@@ -3,6 +3,7 @@ import chunk from 'lodash/chunk'
 import clamp from 'lodash/clamp'
 import { useEffect, useState, useRef } from 'react'
 import groupBy from 'lodash/groupBy'
+import onVisibilityChange from 'visibility-change-ponyfill'
 
 const VALUES = '987654321'
 
@@ -202,50 +203,53 @@ export const useForceUpdate = () => {
 
 export const useTimer = () => {
   const timeStopped = useRef(Date.now())
+  const hidden = useRef(true)
+  const timeGone = useRef(0)
   const intervalRef = useRef()
   const [state, setState] = useState({
     startTime: Date.now(),
-    timeGone: 0,
     difference: 0,
   })
 
   const startTimer = () => {
-    setState(state => ({
-      ...state,
-      timeGone: state.timeGone + (Date.now() - timeStopped.current),
-    }))
+    if (!hidden.current) {
+      return
+    }
+
+    hidden.current = false
+    timeGone.current = timeGone.current + (Date.now() - timeStopped.current)
 
     intervalRef.current = setInterval(() => {
       setState(state => ({
         ...state,
-        difference: Date.now() - state.startTime - state.timeGone,
+        difference: Date.now() - state.startTime - timeGone.current,
       }))
     }, 100)
   }
 
   const stopTimer = () => {
     timeStopped.current = Date.now()
+    hidden.current = true
     clearInterval(intervalRef.current)
   }
 
   useEffect(() => {
     startTimer()
+    onVisibilityChange(() => {
+      document.hidden ? stopTimer() : startTimer()
+    })
     return stopTimer
   }, [])
-
-  useDocumentEvent('visibilitychange', () =>
-    document.hidden ? stopTimer() : startTimer(),
-  )
 
   return {
     minutes: Math.floor((state.difference / 1000 / 60) % 60),
     seconds: Math.floor((state.difference / 1000) % 60),
     reset: () => {
       timeStopped.current = Date.now()
+      timeGone.current = 0
 
       setState({
         startTime: Date.now(),
-        timeGone: 0,
         difference: 0,
       })
     },
