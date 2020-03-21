@@ -38,8 +38,6 @@ function App() {
   }, [cards, finishedPiles, hasWon])
 
   const onMouseDown = ({ clientX, clientY }) => {
-    setPressed(true)
-
     let card = getCardFromPoint(clientX, clientY, cards)
 
     if (!card) {
@@ -58,6 +56,7 @@ function App() {
     const mouseX = card.x
     startRef.current = { x: clientX, y: clientY }
     deltaRef.current = { x: clientX - card.x, y: clientY - card.y }
+    setPressed(true)
 
     setCursorState({ mouseX, mouseY })
   }
