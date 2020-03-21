@@ -1,5 +1,1 @@
 only re-render after animations finish?
-fix z-index for good
-make drop area for cards larger
-allow dropping into pile from below
-should rotate while dragging above potential drop points

@@ -9,13 +9,19 @@ import {
   useForceUpdate,
   getBottomCard,
   checkForFinishedPiles,
+  getCardPile,
 } from './utils'
-import { Card } from './components/Card'
+import Card from './components/Card'
 import './index.css'
 import debounce from 'lodash/debounce'
 import { Header } from './components/Header'
 
 const initialState = { mouseY: 0, mouseX: 0 }
+const EMPTY_CARDS = [0, 1, 2, 3, 4, 5].map(n => ({
+  cardPileIndex: -1,
+  pileIndex: n,
+  isEmpty: true,
+}))
 
 function App() {
   const [activeCard, setActiveCard] = useState(null)
@@ -103,31 +109,34 @@ function App() {
       />
 
       {[0, 1, 2, 3, 4, 5].map(n => (
-        <Card
-          key={`pile-${n}`}
-          card={{
-            cardPileIndex: -1,
-            pileIndex: n,
-            isEmpty: true,
-          }}
-        />
+        <Card key={`pile-${n}`} card={EMPTY_CARDS[n]} />
       ))}
 
-      {cards.map((card, cardIndex) => (
-        <Card
-          key={`card-${cardIndex}`}
-          card={{
-            ...card,
-            isActive: getCardIsActive(activeCard, card),
-            canMove: getCanCardMove(card, cards),
-            isFinished: finishedPiles.includes(card.pileIndex),
-          }}
-          activeCard={activeCard}
-          isPressed={pressed}
-          mouseX={cursorState.mouseX}
-          mouseY={cursorState.mouseY}
-        />
-      ))}
+      {cards.map((card, cardIndex) => {
+        const isActive = getCardIsActive(activeCard, card)
+
+        return (
+          <Card
+            key={`card-${cardIndex}`}
+            card={card}
+            activeCard={activeCard}
+            isActive={isActive}
+            pileSize={getCardPile(card, cards).length}
+            canMove={getCanCardMove(card, cards)}
+            isFinished={finishedPiles.includes(card.pileIndex)}
+            mouseX={
+              getCardIsActive(activeCard, card) && pressed
+                ? cursorState.mouseX
+                : -1
+            }
+            mouseY={
+              getCardIsActive(activeCard, card) && pressed
+                ? cursorState.mouseY
+                : -1
+            }
+          />
+        )
+      })}
     </div>
   )
 }

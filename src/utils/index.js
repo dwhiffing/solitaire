@@ -1,5 +1,6 @@
 import shuffle from 'lodash/shuffle'
 import chunk from 'lodash/chunk'
+import clamp from 'lodash/clamp'
 import { useEffect, useState, useRef } from 'react'
 import groupBy from 'lodash/groupBy'
 
@@ -188,7 +189,7 @@ const decorateCard = (card, cards) =>
   card
     ? {
         ...card,
-        ...getCardPosition(card),
+        ...getCardPosition(card, getCardPile(card, cards).length),
         canMove: getCanCardMove(card, cards),
         isActive: getCardIsActive(card, cards),
       }
@@ -251,30 +252,34 @@ export const useTimer = () => {
   }
 }
 
-export const getCardSpacing = () => {
-  const card = document.querySelector('.card')
-  let outerWidth = Math.min(document.documentElement.clientWidth, 740)
-  const cardWidth = card ? card.clientWidth : outerWidth / 6
+export const getCardSpacing = (pileSize = 0) => {
+  const outerWidth = clamp(document.documentElement.clientWidth, 740)
+  const outerHeight = clamp(document.documentElement.clientHeight, 740)
+  const cardEl = document.querySelector('.card')
+  const cardWidth = cardEl.clientWidth
+  const cardHeight = cardEl.clientHeight
   const xBuffer = (outerWidth - cardWidth * 6) / 7
   const width = cardWidth + xBuffer
+  const overSize = outerHeight < 500 ? clamp(pileSize - 10, 0, 10) : 0
+  const heightBase = outerHeight / 15
+  const maxHeight = outerWidth > 450 ? 30 : 20
 
-  let height = Math.min(28, Math.max(window.innerHeight / 16, 25))
-  let yBuffer = Math.min(200, Math.max(window.innerHeight / 8, 40))
-
-  if (document.documentElement.clientWidth > 900) {
-    height = Math.min(50, Math.max(window.innerHeight / 16, 25))
-    yBuffer = height * 3
-  }
+  let height = clamp(heightBase - overSize, maxHeight)
+  let yBuffer = clamp(
+    (outerHeight - ((height + overSize) * 6.5 + cardHeight)) / 2,
+    40,
+    1000,
+  )
 
   return { width, height, yBuffer, xBuffer }
 }
 
-export const getCardPosition = card => {
-  const { width, height, yBuffer, xBuffer } = getCardSpacing()
+export const getCardPosition = (card, pileSize) => {
+  const { width, height, yBuffer, xBuffer } = getCardSpacing(pileSize)
   const outerWidth = document.documentElement.clientWidth
-  const leftoverSpace = (outerWidth - width * 6) / 2 - xBuffer / 2
+  const leftoverSpace = (outerWidth - (width * 6 - xBuffer)) / 2
 
-  const x = xBuffer + card.pileIndex * width + leftoverSpace
+  const x = card.pileIndex * width + leftoverSpace
   const y = card.isEmpty
     ? yBuffer
     : yBuffer + (card.isFinished ? 0 : card.cardPileIndex * height)
