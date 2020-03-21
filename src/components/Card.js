@@ -65,6 +65,16 @@ const DisplayCard = ({ card, style = {} }) => {
     >
       <div className="face" />
       <div className="back" />
+      <div
+        className="click"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: '-40%',
+          height: '160%',
+          width: '170%',
+        }}
+      />
     </div>
   )
 }
