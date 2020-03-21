@@ -1,23 +1,23 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "0a272391630c39c10aeedb43fba1fc7f",
+    "revision": "d3d7c1f2beb893dfc2397421c2598d55",
     "url": "/solitaire/index.html"
   },
   {
-    "revision": "7298d62253314b18d3e5",
-    "url": "/solitaire/static/css/main.cf5aee68.chunk.css"
+    "revision": "eb855eaaeb615bdb3360",
+    "url": "/solitaire/static/css/main.1a01c59b.chunk.css"
   },
   {
-    "revision": "a916fdd67d4df75a9a1b",
-    "url": "/solitaire/static/js/2.1474c374.chunk.js"
+    "revision": "f53785f5dd977b39248a",
+    "url": "/solitaire/static/js/2.d4262c56.chunk.js"
   },
   {
     "revision": "5356fa2f66e46e6c05e4cbe319ac7f1d",
-    "url": "/solitaire/static/js/2.1474c374.chunk.js.LICENSE.txt"
+    "url": "/solitaire/static/js/2.d4262c56.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "7298d62253314b18d3e5",
-    "url": "/solitaire/static/js/main.4a6f01d5.chunk.js"
+    "revision": "eb855eaaeb615bdb3360",
+    "url": "/solitaire/static/js/main.59fd9f24.chunk.js"
   },
   {
     "revision": "b5a80f2eee726b3a89b4",
